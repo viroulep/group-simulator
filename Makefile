@@ -1,13 +1,20 @@
+CFLAGS=-g -Wall
+
 all: simu
 
-simu: types.o simu.o minisim.cpp
-	g++ -o simu types.o simu.o minisim.cpp
+# Make sure you installed libyaml-cpp-dev!
+
+simu: types.o simu.o costs.o minisim.cpp
+	$(CXX) $(CFLAGS) -o simu types.o simu.o costs.o minisim.cpp -lyaml-cpp
 
 types.o: types.hpp types.cpp
-	g++ -c -o types.o types.cpp
+	$(CXX) $(CFLAGS) -c -o types.o types.cpp
 
 simu.o: simu.hpp types.hpp simu.cpp
-	g++ -c -o simu.o simu.cpp
+	$(CXX) $(CFLAGS) -c -o simu.o simu.cpp
+
+costs.o: costs.hpp costs.cpp
+	$(CXX) $(CFLAGS) -c -o costs.o costs.cpp
 
 clean:
 	rm -rf simu *.o

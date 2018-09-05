@@ -1,5 +1,6 @@
 #include "types.hpp"
 #include <tuple>
+#include <cassert>
 #include <algorithm>
 
 using namespace std;
@@ -29,6 +30,9 @@ string getEventTypeName(EventType t)
       return #Name;
 #include "types.def"
   }
+  // unreachable
+  assert(false);
+  return "";
 }
 
 bool Event::operator<(const Event &r) const

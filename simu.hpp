@@ -9,6 +9,7 @@ protected:
   EventSet events_;
   JudgeSet judges_;
 public:
+  virtual ~GroupSimulator() {};
   Event nextEvent();
   Time walltime() const { return walltime_; };
   virtual void doneEvent();
@@ -29,6 +30,7 @@ class RunnerSystemSimulator : public GroupSimulator {
   unsigned int activeCubes_;
 public:
   RunnerSystemSimulator(unsigned int cubes, unsigned int judges, unsigned int scramblers, unsigned int runners);
+  ~RunnerSystemSimulator() {};
   virtual bool done() const;
 #define SIMU_EVENT_TYPE(Name) \
   virtual void actOn##Name(const Event &e);

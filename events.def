@@ -1,0 +1,26 @@
+#ifndef EVENT
+  #define EVENT(Id, Name, Rank)
+#endif
+
+// https://github.com/thewca/worldcubeassociation.org/blob/e292d86e429d3a2e64107905dfbca9f9f27b2ad5/WcaOnRails/db/seeds/events.seeds.rb
+// Except unofficial events
+EVENT(333, 3x3x3 Cube, 10)
+EVENT(222, 2x2x2 Cube, 20)
+EVENT(444, 4x4x4 Cube, 30)
+EVENT(555, 5x5x5 Cube, 40)
+EVENT(666, 6x6x6 Cube, 50)
+EVENT(777, 7x7x7 Cube, 60)
+EVENT(333bf, 3x3x3 Blindfolded, 70)
+EVENT(333fm, 3x3x3 Fewest Moves, 80)
+EVENT(333oh, 3x3x3 One-Handed, 90)
+EVENT(333ft, 3x3x3 With Feet, 100)
+EVENT(clock, Clock, 110)
+EVENT(minx, Megaminx, 120)
+EVENT(pyram, Pyraminx, 130)
+EVENT(skewb, Skewb, 140)
+EVENT(sq1, Square-1, 150)
+EVENT(444bf, 4x4x4 Blindfolded, 160)
+EVENT(555bf, 5x5x5 Blindfolded, 170)
+EVENT(333mbf, 3x3x3 Multi-Blind, 180)
+
+#undef EVENT

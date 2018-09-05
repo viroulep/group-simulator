@@ -46,4 +46,5 @@ using SortedCubeSet = std::multiset<Cube *, CubeCompare>;
 using JudgeSet = std::multiset<Judge>;
 using Time = unsigned int;
 
+
 #endif

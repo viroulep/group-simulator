@@ -9,6 +9,7 @@
 
 #include "types.hpp"
 #include "simu.hpp"
+#include "costs.hpp"
 
 using namespace std;
 
@@ -18,10 +19,11 @@ using namespace std;
 int main()
 {
   GroupSimulator *simu = new RunnerSystemSimulator(20, 10, 4, 3);
+  ScramblingCosts costs = ScramblingCosts("./costs/events.yml");
 
   // event loop
   while (!simu->done()) {
-    simu->printState();
+    //simu->printState();
     Event currentEvent = simu->nextEvent();
     if (currentEvent.c) {
       assert(currentEvent.c->attemptsDone >= 0 && currentEvent.c->attemptsDone < 5);
@@ -37,9 +39,10 @@ int main()
     }
     simu->doneEvent();
   }
-  chrono::seconds roundDuration((long)simu->walltime());
+  chrono::seconds roundDuration(simu->walltime());
   chrono::minutes durationInMinute = chrono::duration_cast<chrono::minutes>(roundDuration);
   chrono::seconds remaining = roundDuration - durationInMinute;
   cout << "Round took " << durationInMinute.count() << " minutes and " << remaining.count() << " seconds.\n";
+  delete simu;
   return 0;
 }
