@@ -7,7 +7,8 @@ using namespace std;
 
 bool Cube::operator<(const Cube &r) const
 {
-  return attemptsDone < r.attemptsDone;
+  // FIXME: improve
+  return tie(attemptsDone, prio) < tie(r.attemptsDone, r.prio);
 }
 
 string Cube::toString() const

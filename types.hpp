@@ -8,9 +8,9 @@ using Time = unsigned int;
 
 struct Cube {
   unsigned int attemptsDone = 0;
-  const unsigned int maxAttempts;
   const Time solvingTime;
-  Cube(Time t, unsigned int max) : maxAttempts(max), solvingTime(t) {};
+  const Time prio;
+  Cube(Time t) : solvingTime(t), prio(600 - t) {};
   bool operator<(const Cube &r) const;
   std::string toString() const;
 };

@@ -17,13 +17,16 @@ void printCollection(const C &s)
 }
 
 void printCollection(const SortedCubeSet &s);
+void printCollection(const CubeSet &s);
 
 
 void JudgeRunsSystemSimulator::printState() const
 {
   cout << "Simulator state:\n";
   cout << "walltime: " << walltime_ << "\n";
-  cout << "activeCubes: " << activeCubes_.size() << "\n";
+  cout << "activeCubes: ";
+  printCollection(activeCubes_);
+  cout << "\n";
   cout << "idle scramblers: " << scramblersIdle_ << "\n";
   cout << "idle judges: " << judgesIdle_ << "\n";
   cout << "pendingScramble: ";
@@ -38,7 +41,7 @@ void JudgeRunsSystemSimulator::printState() const
   cout << "----------------------\n";
 }
 
-JudgeRunsSystemSimulator::JudgeRunsSystemSimulator(WCAEventKind k, unsigned int cubes, unsigned int judges, unsigned int scramblers, Time cutoff, Time timeLimit) : GroupSimulator(k, cubes, cutoff, timeLimit), JudgeRunsSystemCosts("./costs/models.yml")
+JudgeRunsSystemSimulator::JudgeRunsSystemSimulator(WCAEventKind k, const CubeSet &cubes, unsigned int judges, unsigned int scramblers, Time cutoff, Time timeLimit) : GroupSimulator(k, cubes, cutoff, timeLimit), JudgeRunsSystemCosts("./costs/models.yml")
 {
   walltime_ = getInitCost();
 
@@ -88,10 +91,10 @@ void JudgeRunsSystemSimulator::actOnRunInReady(const Event &)
   if (!pendingJudging_.empty()) {
     Cube *c = *pendingJudging_.begin();
     pendingJudging_.erase(pendingJudging_.begin());
-    cout << "Judging : " << c->toString() << "\n";
     Time ranOutTime = walltime_ + getRunInCost() + getJudgingCost() + c->solvingTime + getRunOutCost();
     c->attemptsDone++;
-    if (c->attemptsDone == c->maxAttempts) {
+    if (c->attemptsDone == getMaxAttemptsFor(eventForGroup_) ||
+        (c->attemptsDone == attemptsForCutoff_ && c->solvingTime >= cutoff_)) {
       assert(activeCubes_.erase(c) == 1);
       delete c;
     } else {

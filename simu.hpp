@@ -11,10 +11,12 @@ protected:
   JudgeSet judges_;
   CubeSet activeCubes_;
   const WCAEventKind eventForGroup_;
+  // FIXME: not yet flexible, but enough for now
+  const unsigned int attemptsForCutoff_ = 2;
   const Time cutoff_;
   const Time timeLimit_;
 public:
-  GroupSimulator(WCAEventKind k, unsigned int cubes, Time cutoff, Time timeLimit);
+  GroupSimulator(WCAEventKind k, const CubeSet &cubes, Time cutoff, Time timeLimit);
   virtual ~GroupSimulator() {};
   Event nextEvent();
   Time walltime() const { return walltime_; };
@@ -32,9 +34,9 @@ class RunnerSystemSimulator : public GroupSimulator, public RunnerSystemCosts {
   SortedCubeSet pendingScramble_;
   SortedCubeSet pendingRunIn_;
   SortedCubeSet pendingRunOut_;
-  unsigned int scramblersIdle_;
+  unsigned int scramblersIdle_ = 0;
 public:
-  RunnerSystemSimulator(WCAEventKind k, unsigned int cubes, unsigned int judges, unsigned int scramblers, unsigned int runners, Time cutoff, Time timeLimit);
+  RunnerSystemSimulator(WCAEventKind k, const CubeSet &cubes, unsigned int judges, unsigned int scramblers, unsigned int runners, Time cutoff, Time timeLimit);
   ~RunnerSystemSimulator() {};
 #define SIMU_EVENT_TYPE(Name) \
   virtual void actOn##Name(const Event &e);
@@ -45,10 +47,10 @@ public:
 class JudgeRunsSystemSimulator : public GroupSimulator, public JudgeRunsSystemCosts {
   SortedCubeSet pendingScramble_;
   SortedCubeSet pendingJudging_;
-  unsigned int scramblersIdle_;
-  unsigned int judgesIdle_;
+  unsigned int scramblersIdle_ = 0;
+  unsigned int judgesIdle_ = 0;
 public:
-  JudgeRunsSystemSimulator(WCAEventKind k, unsigned int cubes, unsigned int judges, unsigned int scramblers, Time cutoff, Time timeLimit);
+  JudgeRunsSystemSimulator(WCAEventKind k, const CubeSet &cubes, unsigned int judges, unsigned int scramblers, Time cutoff, Time timeLimit);
   ~JudgeRunsSystemSimulator() {};
 #define SIMU_EVENT_TYPE(Name) \
   virtual void actOn##Name(const Event &e);

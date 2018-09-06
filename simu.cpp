@@ -6,21 +6,8 @@
 
 using namespace std;
 
-GroupSimulator::GroupSimulator(WCAEventKind k, unsigned int cubes, Time cutoff, Time timeLimit) : ScramblingCosts("./costs/events.yml"), eventForGroup_(k), cutoff_(cutoff), timeLimit_(timeLimit)
-{
-  // Let's just assume now that 25% do not meet the cutoff
-  // FIXME: do a proper user-defined stuff
-  unsigned int overCutoff = cubes/4;
-  unsigned int others = cubes - overCutoff;
-  SolvingCosts model("./costs/events.yml");
-  for (unsigned int i = 0; i < others; i++) {
-    // TODO: to generate cubes, we should have a something that generate a random set of cubes which solving times follows a given distribution
-    activeCubes_.insert(new Cube(model.getCostFor(k), 5));
-  }
-  for (unsigned int i = 0; i < overCutoff; i++) {
-    activeCubes_.insert(new Cube(2*model.getCostFor(k), 2));
-  }
-}
+GroupSimulator::GroupSimulator(WCAEventKind k, const CubeSet &cubes, Time cutoff, Time timeLimit) : ScramblingCosts("./costs/events.yml"), activeCubes_(cubes), eventForGroup_(k), cutoff_(cutoff), timeLimit_(timeLimit)
+{}
 
 Event GroupSimulator::nextEvent()
 {
@@ -60,12 +47,22 @@ void printCollection(const SortedCubeSet &s)
   cout << "]";
 }
 
+void printCollection(const CubeSet &s)
+{
+  cout << "[";
+  for (const auto &elem : s)
+    cout << elem->toString() << ", ";
+  cout << "]";
+}
+
 
 void RunnerSystemSimulator::printState() const
 {
   cout << "Simulator state:\n";
   cout << "walltime: " << walltime_ << "\n";
-  cout << "activeCubes: " << activeCubes_.size() << "\n";
+  cout << "activeCubes: ";
+  printCollection(activeCubes_);
+  cout << "\n";
   cout << "idle scramblers: " << scramblersIdle_ << "\n";
   cout << "pendingScramble: ";
   printCollection(pendingScramble_);
@@ -85,7 +82,7 @@ void RunnerSystemSimulator::printState() const
   cout << "----------------------\n";
 }
 
-RunnerSystemSimulator::RunnerSystemSimulator(WCAEventKind k, unsigned int cubes, unsigned int judges, unsigned int scramblers, unsigned int runners, Time cutoff, Time timeLimit) : GroupSimulator(k, cubes, cutoff, timeLimit), RunnerSystemCosts("./costs/models.yml")
+RunnerSystemSimulator::RunnerSystemSimulator(WCAEventKind k, const CubeSet &cubes, unsigned int judges, unsigned int scramblers, unsigned int runners, Time cutoff, Time timeLimit) : GroupSimulator(k, cubes, cutoff, timeLimit), RunnerSystemCosts("./costs/models.yml")
 {
   copy(activeCubes_.begin(), activeCubes_.end(), inserter(pendingScramble_, pendingScramble_.begin()));
 
@@ -114,11 +111,11 @@ void RunnerSystemSimulator::actOnCubeSolved(const Event &e)
 {
   assert(e.c);
   e.c->attemptsDone++;
-  if (e.c->attemptsDone == e.c->maxAttempts) {
+  if (e.c->attemptsDone == getMaxAttemptsFor(eventForGroup_) ||
+      (e.c->attemptsDone == attemptsForCutoff_ && e.c->solvingTime >= cutoff_)) {
     assert(activeCubes_.erase(e.c) == 1);
     delete e.c;
   } else {
-    cout << "inserting in pending run out: " << e.c->toString() << "\n";
     pendingRunOut_.insert(e.c);
   }
 }
@@ -164,7 +161,6 @@ void RunnerSystemSimulator::actOnRunInReady(const Event &)
     while (!pendingRunIn_.empty() && ++total <= getRunInMaxCubes()) {
       Cube *c = *pendingRunIn_.begin();
       pendingRunIn_.erase(pendingRunIn_.begin());
-      cout << "Running in: " << c->toString() << "\n";
       Judge j = *judges_.begin();
       judges_.erase(judges_.begin());
       // In order to now when we are available to run out, store the last

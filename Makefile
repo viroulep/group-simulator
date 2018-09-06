@@ -4,14 +4,17 @@ all: simu
 
 # Make sure you installed libyaml-cpp-dev!
 
-simu: types.o simu.o costs.o judge_runs_system.o minisim.cpp
-	$(CXX) $(CFLAGS) -o simu types.o simu.o costs.o judge_runs_system.o minisim.cpp -lyaml-cpp
+simu: types.o simu.o costs.o judge_runs_system.o generator.o minisim.cpp
+	$(CXX) $(CFLAGS) -o simu types.o simu.o costs.o judge_runs_system.o generator.o minisim.cpp -lyaml-cpp
 
 types.o: types.hpp types.cpp
 	$(CXX) $(CFLAGS) -c -o types.o types.cpp
 
 simu.o: simu.hpp types.hpp simu.cpp
 	$(CXX) $(CFLAGS) -c -o simu.o simu.cpp
+
+generator.o: generator.hpp types.hpp generator.cpp
+	$(CXX) $(CFLAGS) -c -o generator.o generator.cpp
 
 judge_runs_system.o: simu.hpp types.hpp judge_runs_system.cpp
 	$(CXX) $(CFLAGS) -c -o judge_runs_system.o judge_runs_system.cpp

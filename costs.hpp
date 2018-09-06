@@ -6,13 +6,15 @@
 #include <map>
 
 enum WCAEventKind {
-#define EVENT(Id, Name, Rank) \
+#define EVENT(Id, Name, MaxAttempts, Rank) \
   WCAEvent##Id,
 #include "events.def"
   WCAEventUnknown,
 };
 
-std::string getEventTypeName(WCAEventKind t);
+std::string getWCAEventName(WCAEventKind t);
+WCAEventKind getWCAEventKindFromId(const std::string &id);
+unsigned int getMaxAttemptsFor(WCAEventKind t);
 
 using CostMap = std::map<WCAEventKind, Time>;
 using ActionCostMap = std::map<std::string, Time>;
