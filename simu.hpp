@@ -11,8 +11,7 @@ protected:
   JudgeSet judges_;
   CubeSet activeCubes_;
   const WCAEventKind eventForGroup_;
-  // FIXME: not yet flexible, but enough for now
-  const unsigned int attemptsForCutoff_ = 2;
+  const unsigned int attemptsForCutoff_;
   const Time cutoff_;
   const Time timeLimit_;
 public:

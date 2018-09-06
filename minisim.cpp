@@ -19,11 +19,10 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-  cxxopts::Options options("Group Simulator", "Gives estimate time for a group by simulating it.");
+  cxxopts::Options options("./simu", "Gives estimate time for a group by simulating it.");
   options.add_options()
-    ("cubes", "Input list of cube's time", cxxopts::value<string>())
-    ("event", "Event for group", cxxopts::value<string>())
-    ("model", "How you will run the group (runner_system|judge_runs_system)", cxxopts::value<string>()->default_value("judge_runs_system"))
+    ("e,event", "Event for group", cxxopts::value<string>())
+    ("m,model", "How you will run the group (runner_system|judge_runs_system)", cxxopts::value<string>()->default_value("judge_runs_system"))
     ("scrambling_costs", "Path to the datafile", cxxopts::value<string>()->default_value("./costs/events.yml"))
     ("model_costs", "Path to the model datafile", cxxopts::value<string>()->default_value("./costs/models.yml"))
     ("j,judges", "Number of judges", cxxopts::value<unsigned int>()->default_value("10"))
@@ -31,12 +30,23 @@ int main(int argc, char *argv[])
     ("s,scramblers", "Number of scramblers", cxxopts::value<unsigned int>()->default_value("2"))
     ("c,cutoff", "Cutoff", cxxopts::value<Time>()->default_value("600"))
     ("t,time_limit", "Time limit", cxxopts::value<Time>()->default_value("600"))
+    ("h,help", "Print help")
+    ("cubes", "Positional argument. Path to the file containing cubes", cxxopts::value<string>())
     ;
+
+  options.positional_help("path_to_cubes");
+  options.parse_positional("cubes");
 
   auto result = options.parse(argc, argv);
 
+  if (result.count("help")) {
+    cout << options.help() << "\n";
+    exit(EXIT_SUCCESS);
+  }
+
   if (result.count("cubes") != 1) {
-    cout << "You must provide a file with the list of cubes for the group.\n";
+    cout << "You must provide a file with the list of cubes for the group on the command line.\n";
+    cout << "Run `./simu -h` for usage\n";
     exit(EXIT_FAILURE);
   }
 

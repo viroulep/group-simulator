@@ -3,43 +3,19 @@ scrambling_costs:
   '222': 10
   '444': 30
   '555': 45
-  # TODO
-  '666': 0
-  # TODO
-  '777': 0
+  '666': 60
+  '777': 80
   333bf: 20
   # Not applicable
   333fm: 0
   333oh: 20
   333ft: 20
   clock: 60
-  minx: 60
+  minx: 45
   pyram: 10
   skewb: 10
   sq1: 30
   444bf: 50
-  # TODO
-  555bf: 0
-  # Not applicable: simulating multi won't be an option
-  333mbf: 0
-solving_costs:
-  '333': 15
-  '222': 8
-  '444': 55
-  '555': 90
-  '666': 180
-  '777': 240
-  333bf: 20
-  # Not applicable
-  333fm: 0
-  333oh: 30
-  333ft: 60
-  clock: 10
-  minx: 100
-  pyram: 10
-  skewb: 10
-  sq1: 30
-  444bf: 0
-  555bf: 0
+  555bf: 45
   # Not applicable: simulating multi won't be an option
   333mbf: 0

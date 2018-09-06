@@ -6,15 +6,17 @@
 #include <map>
 
 enum WCAEventKind {
-#define EVENT(Id, Name, MaxAttempts, Rank) \
+#define EVENT(Id, Name, MaxAttempts, CutoffAttempts, Rank) \
   WCAEvent##Id,
 #include "events.def"
   WCAEventUnknown,
 };
 
+// FIXME: to class WCAEvent
 std::string getWCAEventName(WCAEventKind t);
 WCAEventKind getWCAEventKindFromId(const std::string &id);
 unsigned int getMaxAttemptsFor(WCAEventKind t);
+unsigned int getCutoffAttemptsFor(WCAEventKind t);
 
 using CostMap = std::map<WCAEventKind, Time>;
 using ActionCostMap = std::map<std::string, Time>;
