@@ -1,0 +1,15 @@
+#ifndef RUNNER_SYSTEM_ACTION
+  #define RUNNER_SYSTEM_ACTION(Name, MapKey)
+#endif
+
+#ifndef RUNNER_SYSTEM_PARAM
+  #define RUNNER_SYSTEM_PARAM(Name, MapKey)
+#endif
+
+RUNNER_SYSTEM_ACTION(Judging, judging)
+RUNNER_SYSTEM_ACTION(RunIn, run_in)
+RUNNER_SYSTEM_ACTION(RunOut, run_out)
+RUNNER_SYSTEM_PARAM(RunInMaxCubes, number_of_cubes_ran_in)
+
+#undef RUNNER_SYSTEM_PARAM
+#undef RUNNER_SYSTEM_ACTION

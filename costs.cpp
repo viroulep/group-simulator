@@ -30,25 +30,54 @@ WCAEventKind getWCAEventKindFromId(const std::string &id)
   return WCAEventUnknown;
 }
 
-Time ScramblingCosts::getScramblingTimeFor(const WCAEventKind k)
+Time CostsByEventId::getCostFor(const WCAEventKind k)
 {
   return costsById_[k];
 }
 
-ScramblingCosts::ScramblingCosts(const std::string &filename)
+CostsByEventId::CostsByEventId(const string &filename, const string &node)
 {
   // TODO proper error handling
   YAML::Node config = YAML::LoadFile(filename);
-  auto costs = config["scrambling_costs"].as<map<string, Time>>();
+  auto costs = config[node].as<map<string, Time>>();
 #define EVENT(Id, Name, Rank)  \
   if (costs.count(#Id) != 1) { \
-    cerr << "Couldn't find scrambling costs for " << getWCAEventName(WCAEvent##Id) << "\n"; \
+    cerr << "Couldn't find costs for " << getWCAEventName(WCAEvent##Id) << "\n"; \
   } else { \
     costsById_[WCAEvent##Id] = costs[#Id]; \
   }
 #include "events.def"
 
   for (auto &pair : costsById_) {
-    cout << "Scrambling cost for " << getWCAEventName(pair.first) << ": " << to_string(pair.second) << " seconds.\n";
+    cout << "Cost for " << getWCAEventName(pair.first) << ": " << to_string(pair.second) << " seconds.\n";
+  }
+}
+
+
+RunnerSystemCosts::RunnerSystemCosts(const string &filename)
+{
+  // TODO proper error handling
+  YAML::Node config = YAML::LoadFile(filename);
+  auto costs = config["runner_system"]["actions"].as<map<string, Time>>();
+  auto params = config["runner_system"]["params"].as<map<string, unsigned int>>();
+#define RUNNER_SYSTEM_ACTION(Name, MapKey)  \
+  if (costs.count(#MapKey) != 1) { \
+    cerr << "Couldn't find action cost for " << #Name << "\n"; \
+  } else { \
+    costsByName_[#MapKey] = costs[#MapKey]; \
+  }
+#define RUNNER_SYSTEM_PARAM(Name, MapKey)  \
+  if (params.count(#MapKey) != 1) { \
+    cerr << "Couldn't find param " << #Name << "\n"; \
+  } else { \
+    paramsByName_[#MapKey] = params[#MapKey]; \
+  }
+#include "models.def"
+
+  for (auto &pair : costsByName_) {
+    cout << "Action cost for " << pair.first << ": " << to_string(pair.second) << " seconds.\n";
+  }
+  for (auto &pair : paramsByName_) {
+    cout << "Param " << pair.first << ": " << to_string(pair.second) << ".\n";
   }
 }

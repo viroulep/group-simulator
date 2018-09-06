@@ -2,8 +2,25 @@
 #include "simu.hpp"
 #include <iostream>
 #include <cassert>
+#include <iterator>
 
 using namespace std;
+
+GroupSimulator::GroupSimulator(WCAEventKind k, unsigned int cubes, Time cutoff, Time timeLimit) : ScramblingCosts("./costs/events.yml"), eventForGroup_(k), cutoff_(cutoff), timeLimit_(timeLimit)
+{
+  // Let's just assume now that 25% do not meet the cutoff
+  // FIXME: do a proper user-defined stuff
+  unsigned int overCutoff = cubes/4;
+  unsigned int others = cubes - overCutoff;
+  SolvingCosts model("./costs/events.yml");
+  for (unsigned int i = 0; i < others; i++) {
+    // TODO: to generate cubes, we should have a something that generate a random set of cubes which solving times follows a given distribution
+    activeCubes_.insert(new Cube(model.getCostFor(k), 5));
+  }
+  for (unsigned int i = 0; i < overCutoff; i++) {
+    activeCubes_.insert(new Cube(2*model.getCostFor(k), 2));
+  }
+}
 
 Event GroupSimulator::nextEvent()
 {
@@ -18,6 +35,12 @@ void GroupSimulator::doneEvent()
 {
   events_.erase(events_.begin());
 }
+
+bool GroupSimulator::done() const
+{
+  return activeCubes_.empty();
+}
+
 
 // FIXME cleanup
 template<typename C>
@@ -42,7 +65,7 @@ void RunnerSystemSimulator::printState() const
 {
   cout << "Simulator state:\n";
   cout << "walltime: " << walltime_ << "\n";
-  cout << "activeCubes: " << activeCubes_ << "\n";
+  cout << "activeCubes: " << activeCubes_.size() << "\n";
   cout << "idle scramblers: " << scramblersIdle_ << "\n";
   cout << "pendingScramble: ";
   printCollection(pendingScramble_);
@@ -62,11 +85,10 @@ void RunnerSystemSimulator::printState() const
   cout << "----------------------\n";
 }
 
-RunnerSystemSimulator::RunnerSystemSimulator(unsigned int cubes, unsigned int judges, unsigned int scramblers, unsigned int runners) : GroupSimulator(), activeCubes_(cubes)
+RunnerSystemSimulator::RunnerSystemSimulator(WCAEventKind k, unsigned int cubes, unsigned int judges, unsigned int scramblers, unsigned int runners, Time cutoff, Time timeLimit) : GroupSimulator(k, cubes, cutoff, timeLimit), RunnerSystemCosts("./costs/models.yml")
 {
-  for (unsigned int i = 0; i < activeCubes_; i++) {
-    pendingScramble_.insert(new Cube{0});
-  }
+  copy(activeCubes_.begin(), activeCubes_.end(), inserter(pendingScramble_, pendingScramble_.begin()));
+
   for (unsigned int i = 0; i < judges; i++) {
     judges_.insert(Judge{0, 0});
   }
@@ -80,11 +102,6 @@ RunnerSystemSimulator::RunnerSystemSimulator(unsigned int cubes, unsigned int ju
   }
 }
 
-bool RunnerSystemSimulator::done() const
-{
-  return !activeCubes_;
-}
-
 void RunnerSystemSimulator::actOnCubeScrambled(const Event &e)
 {
   assert(e.c);
@@ -94,11 +111,11 @@ void RunnerSystemSimulator::actOnCubeScrambled(const Event &e)
 void RunnerSystemSimulator::actOnCubeSolved(const Event &e)
 {
   assert(e.c);
-  if (e.c->attemptsDone == 4) {
-    activeCubes_--;
+  e.c->attemptsDone++;
+  if (e.c->attemptsDone == e.c->maxAttempts) {
+    assert(activeCubes_.erase(e.c) == 1);
     delete e.c;
   } else {
-    e.c->attemptsDone++;
     cout << "inserting in pending run out: " << e.c->toString() << "\n";
     pendingRunOut_.insert(e.c);
   }
@@ -108,8 +125,7 @@ void RunnerSystemSimulator::actOnScramblerReady(const Event &)
 {
   if (!pendingScramble_.empty()) {
     Cube *c = *pendingScramble_.begin();
-    // FIXME: extract 30s to model
-    Time doneScrambling = walltime_ + 20;
+    Time doneScrambling = walltime_ + getCostFor(eventForGroup_);
     pendingScramble_.erase(pendingScramble_.begin());
     events_.insert(Event({ScramblerReady, nullptr, doneScrambling}));
     events_.insert(Event({CubeScrambled, c, doneScrambling}));
@@ -123,9 +139,8 @@ void RunnerSystemSimulator::actOnRunInReady(const Event &)
 {
   if (pendingRunIn_.empty()) {
     // Else try to run out a few seconds later
-    // FIXME: extract 20s to model
     if (!pendingRunOut_.empty()) {
-      events_.insert(Event({RunOutReady, nullptr, walltime_ + 20}));
+      events_.insert(Event({RunOutReady, nullptr, walltime_ + getRunInCost()}));
     } else {
       // Attempt to find a scrambled cube in the queue
       auto nextEvent = findFirst(events_, CubeScrambled);
@@ -142,10 +157,9 @@ void RunnerSystemSimulator::actOnRunInReady(const Event &)
       }
     }
   } else {
-    unsigned int max = 2;
     unsigned int total = 0;
     Time lastAvailable;
-    while (!pendingRunIn_.empty() && ++total <= max) {
+    while (!pendingRunIn_.empty() && ++total <= getRunInMaxCubes()) {
       Cube *c = *pendingRunIn_.begin();
       pendingRunIn_.erase(pendingRunIn_.begin());
       cout << "Running in: " << c->toString() << "\n";
@@ -162,8 +176,7 @@ void RunnerSystemSimulator::actOnRunInReady(const Event &)
         lastAvailable = j.busyUntil;
       }
       // Compute attempt endtime
-      // FIXME: extract 60s to model
-      j.busyUntil = lastAvailable + 60;
+      j.busyUntil = lastAvailable + getJudgingCost() + c->solvingTime;
       judges_.insert(j);
       events_.insert(Event({CubeSolved, c, j.busyUntil}));
     }
@@ -173,13 +186,13 @@ void RunnerSystemSimulator::actOnRunInReady(const Event &)
 
 void RunnerSystemSimulator::actOnRunOutReady(const Event &)
 {
-  // FIXME: extract 30s to model
-  events_.insert(Event({RunInReady, nullptr, walltime_ + 20}));
+  Time ranOutTime = walltime_ + getRunOutCost();
+  events_.insert(Event({RunInReady, nullptr, ranOutTime}));
   // Assume a runner can take back all!
   while (!pendingRunOut_.empty()) {
     Cube *c = *pendingRunOut_.begin();
     pendingRunOut_.erase(pendingRunOut_.begin());
-    events_.insert(Event({CubeRanOut, c, walltime_ + 20}));
+    events_.insert(Event({CubeRanOut, c, ranOutTime}));
   }
 }
 

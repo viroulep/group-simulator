@@ -1,0 +1,10 @@
+runner_system:
+  params:
+    # The number of cubes a runner can take from the scrambling station, at most
+    number_of_cubes_ran_in: 3
+  actions:
+    # Excluding the time to solve, this is the amount of time (in seconds) spent at the solving station
+    judging: 45
+    # Time the runner needs to get the cube from the scrambling station to the solving station, including the time to call the competitor(s) (must *not* include a potential waiting time for a free station, that's taken care of elsewhere).
+    run_in: 25
+    run_out: 20

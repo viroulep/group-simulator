@@ -18,8 +18,7 @@ using namespace std;
 
 int main()
 {
-  GroupSimulator *simu = new RunnerSystemSimulator(20, 10, 4, 3);
-  ScramblingCosts costs = ScramblingCosts("./costs/events.yml");
+  GroupSimulator *simu = new RunnerSystemSimulator(WCAEvent444, 20, 9, 3, 2, 75, 240);
 
   // event loop
   while (!simu->done()) {

@@ -4,8 +4,13 @@
 #include<set>
 #include<string>
 
+using Time = unsigned int;
+
 struct Cube {
-  unsigned int attemptsDone;
+  unsigned int attemptsDone = 0;
+  const unsigned int maxAttempts;
+  const Time solvingTime;
+  Cube(Time t, unsigned int max) : maxAttempts(max), solvingTime(t) {};
   bool operator<(const Cube &r) const;
   std::string toString() const;
 };
@@ -42,9 +47,9 @@ struct Judge {
   bool operator<(const Judge &r) const;
 };
 
+using CubeSet = std::set<Cube *>;
 using SortedCubeSet = std::multiset<Cube *, CubeCompare>;
 using JudgeSet = std::multiset<Judge>;
-using Time = unsigned int;
 
 
 #endif
