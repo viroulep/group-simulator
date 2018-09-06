@@ -50,4 +50,14 @@ public:
 #include "models.def"
 };
 
+class JudgeRunsSystemCosts {
+  ActionCostMap costsByName_;
+
+public:
+  JudgeRunsSystemCosts(const std::string &filename);
+#define JUDGE_RUNS_SYSTEM_ACTION(Name, MapKey) \
+  Time get##Name##Cost() { return costsByName_[#MapKey]; }
+#include "models.def"
+};
+
 #endif

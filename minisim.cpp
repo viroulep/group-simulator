@@ -18,11 +18,12 @@ using namespace std;
 
 int main()
 {
-  GroupSimulator *simu = new RunnerSystemSimulator(WCAEvent444, 20, 9, 3, 2, 75, 240);
+  GroupSimulator *simu = new RunnerSystemSimulator(WCAEvent222, 20, 10, 3, 2, 75, 240);
+  //GroupSimulator *simu = new JudgeRunsSystemSimulator(WCAEvent222, 20, 10, 3, 75, 240);
 
   // event loop
   while (!simu->done()) {
-    //simu->printState();
+    simu->printState();
     Event currentEvent = simu->nextEvent();
     if (currentEvent.c) {
       assert(currentEvent.c->attemptsDone >= 0 && currentEvent.c->attemptsDone < 5);

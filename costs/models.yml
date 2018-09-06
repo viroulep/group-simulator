@@ -8,3 +8,10 @@ runner_system:
     # Time the runner needs to get the cube from the scrambling station to the solving station, including the time to call the competitor(s) (must *not* include a potential waiting time for a free station, that's taken care of elsewhere).
     run_in: 25
     run_out: 20
+    init: 120
+judge_runs_system:
+  actions:
+    init: 120
+    judging: 45
+    run_in: 20
+    run_out: 15

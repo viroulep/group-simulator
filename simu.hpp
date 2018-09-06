@@ -42,4 +42,18 @@ public:
   virtual void printState() const;
 };
 
+class JudgeRunsSystemSimulator : public GroupSimulator, public JudgeRunsSystemCosts {
+  SortedCubeSet pendingScramble_;
+  SortedCubeSet pendingJudging_;
+  unsigned int scramblersIdle_;
+  unsigned int judgesIdle_;
+public:
+  JudgeRunsSystemSimulator(WCAEventKind k, unsigned int cubes, unsigned int judges, unsigned int scramblers, Time cutoff, Time timeLimit);
+  ~JudgeRunsSystemSimulator() {};
+#define SIMU_EVENT_TYPE(Name) \
+  virtual void actOn##Name(const Event &e);
+#include "types.def"
+  virtual void printState() const;
+};
+
 #endif

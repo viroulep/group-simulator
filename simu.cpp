@@ -89,16 +89,18 @@ RunnerSystemSimulator::RunnerSystemSimulator(WCAEventKind k, unsigned int cubes,
 {
   copy(activeCubes_.begin(), activeCubes_.end(), inserter(pendingScramble_, pendingScramble_.begin()));
 
+  walltime_ = getInitCost();
+
   for (unsigned int i = 0; i < judges; i++) {
     judges_.insert(Judge{0, 0});
   }
 
   for (unsigned int i = 0; i < scramblers; i++) {
-    events_.insert(Event{ScramblerReady, nullptr, 0});
+    events_.insert(Event{ScramblerReady, nullptr, walltime_});
   }
 
   for (unsigned int i = 0; i < runners; i++) {
-    events_.insert(Event{RunInReady, nullptr, 0});
+    events_.insert(Event{RunInReady, nullptr, walltime_});
   }
 }
 

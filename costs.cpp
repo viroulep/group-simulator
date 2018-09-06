@@ -35,6 +35,8 @@ Time CostsByEventId::getCostFor(const WCAEventKind k)
   return costsById_[k];
 }
 
+// FIXME: dirty code duplication below
+
 CostsByEventId::CostsByEventId(const string &filename, const string &node)
 {
   // TODO proper error handling
@@ -79,5 +81,23 @@ RunnerSystemCosts::RunnerSystemCosts(const string &filename)
   }
   for (auto &pair : paramsByName_) {
     cout << "Param " << pair.first << ": " << to_string(pair.second) << ".\n";
+  }
+}
+
+JudgeRunsSystemCosts::JudgeRunsSystemCosts(const string &filename)
+{
+  // TODO proper error handling
+  YAML::Node config = YAML::LoadFile(filename);
+  auto costs = config["judge_runs_system"]["actions"].as<map<string, Time>>();
+#define JUDGE_RUNS_SYSTEM_ACTION(Name, MapKey)  \
+  if (costs.count(#MapKey) != 1) { \
+    cerr << "Couldn't find action cost for " << #Name << "\n"; \
+  } else { \
+    costsByName_[#MapKey] = costs[#MapKey]; \
+  }
+#include "models.def"
+
+  for (auto &pair : costsByName_) {
+    cout << "Action cost for " << pair.first << ": " << to_string(pair.second) << " seconds.\n";
   }
 }
