@@ -6,7 +6,8 @@
 
 using namespace std;
 
-GroupSimulator::GroupSimulator(WCAEventKind k, const CubeSet &cubes, Time cutoff, Time timeLimit) : ScramblingCosts("./costs/events.yml"), activeCubes_(cubes), eventForGroup_(k), attemptsForCutoff_(getCutoffAttemptsFor(k)), cutoff_(cutoff), timeLimit_(timeLimit)
+//FIXME: extract this so that it's relative to build dir
+GroupSimulator::GroupSimulator(WCAEventKind k, const CubeSet &cubes, Time cutoff, Time timeLimit) : ScramblingCosts("../costs/events.yml"), activeCubes_(cubes), eventForGroup_(k), attemptsForCutoff_(getCutoffAttemptsFor(k)), cutoff_(cutoff), timeLimit_(timeLimit)
 {}
 
 Event GroupSimulator::nextEvent()

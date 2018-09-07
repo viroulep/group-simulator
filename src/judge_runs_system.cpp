@@ -41,7 +41,7 @@ void JudgeRunsSystemSimulator::printState() const
   cout << "----------------------\n";
 }
 
-JudgeRunsSystemSimulator::JudgeRunsSystemSimulator(WCAEventKind k, const CubeSet &cubes, unsigned int judges, unsigned int scramblers, Time cutoff, Time timeLimit) : GroupSimulator(k, cubes, cutoff, timeLimit), JudgeRunsSystemCosts("./costs/models.yml")
+JudgeRunsSystemSimulator::JudgeRunsSystemSimulator(WCAEventKind k, const CubeSet &cubes, unsigned int judges, unsigned int scramblers, Time cutoff, Time timeLimit) : GroupSimulator(k, cubes, cutoff, timeLimit), JudgeRunsSystemCosts("../costs/models.yml")
 {
   walltime_ = getInitCost();
 

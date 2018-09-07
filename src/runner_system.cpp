@@ -59,7 +59,7 @@ void RunnerSystemSimulator::printState() const
   cout << "----------------------\n";
 }
 
-RunnerSystemSimulator::RunnerSystemSimulator(WCAEventKind k, const CubeSet &cubes, unsigned int judges, unsigned int scramblers, unsigned int runners, Time cutoff, Time timeLimit) : GroupSimulator(k, cubes, cutoff, timeLimit), RunnerSystemCosts("./costs/models.yml")
+RunnerSystemSimulator::RunnerSystemSimulator(WCAEventKind k, const CubeSet &cubes, unsigned int judges, unsigned int scramblers, unsigned int runners, Time cutoff, Time timeLimit) : GroupSimulator(k, cubes, cutoff, timeLimit), RunnerSystemCosts("../costs/models.yml")
 {
   copy(activeCubes_.begin(), activeCubes_.end(), inserter(pendingScramble_, pendingScramble_.begin()));
 
