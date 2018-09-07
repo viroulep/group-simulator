@@ -11,7 +11,7 @@
 #include "simu.hpp"
 #include "costs.hpp"
 #include "generator.hpp"
-#include "third_party/cxxopts/cxxopts.hpp"
+#include "cxxopts.hpp"
 
 using namespace std;
 

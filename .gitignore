@@ -31,3 +31,7 @@
 *.out
 *.app
 simu
+
+# stuff
+build
+Session.vim
