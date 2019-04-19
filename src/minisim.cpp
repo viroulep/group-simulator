@@ -4,6 +4,7 @@
 #include<tuple>
 #include<iostream>
 #include<algorithm>
+#include<random>
 #include<chrono>
 #include<iterator>
 
@@ -30,24 +31,20 @@ int main(int argc, char *argv[])
     ("s,scramblers", "Number of scramblers", cxxopts::value<unsigned int>()->default_value("2"))
     ("c,cutoff", "Cutoff", cxxopts::value<Time>()->default_value("600"))
     ("t,time_limit", "Time limit", cxxopts::value<Time>()->default_value("600"))
+    ("n,competitors", "Number of competitors", cxxopts::value<unsigned int>()->default_value("20"))
+    ("avg", "Center of the time distribution", cxxopts::value<unsigned int>()->default_value("12"))
+    ("width", "Width of the time distribution", cxxopts::value<unsigned int>()->default_value("5"))
+    ("cubes", "Optional path to the file containing cubes", cxxopts::value<string>()->default_value(""))
     ("h,help", "Print help")
-    ("cubes", "Positional argument. Path to the file containing cubes", cxxopts::value<string>())
     ;
 
   options.positional_help("path_to_cubes");
-  options.parse_positional("cubes");
 
   auto result = options.parse(argc, argv);
 
   if (result.count("help")) {
     cout << options.help() << "\n";
     exit(EXIT_SUCCESS);
-  }
-
-  if (result.count("cubes") != 1) {
-    cout << "You must provide a file with the list of cubes for the group on the command line.\n";
-    cout << "Run `./simu -h` for usage\n";
-    exit(EXIT_FAILURE);
   }
 
   if (result.count("event") != 1) {
@@ -63,7 +60,14 @@ int main(int argc, char *argv[])
   Time cutoff = result["cutoff"].as<Time>();
   Time timeLimit = result["time_limit"].as<Time>();
   string pathToCubes = result["cubes"].as<string>();
-  CubeSet cubes = CubeLoader::loadFile(pathToCubes);
+
+  CubeSet cubes;
+  if (pathToCubes.length() > 0) {
+    cubes = CubeLoader::loadFile(pathToCubes);
+  } else {
+    normal_distribution<double> distrib(result["avg"].as<Time>(), result["width"].as<Time>());
+    cubes = CubeLoader::random(result["competitors"].as<unsigned int>(), distrib);
+  }
 
   string modelUsed = result["model"].as<string>();
 
@@ -77,6 +81,8 @@ int main(int argc, char *argv[])
     cout << "Unrecognized model: " << modelUsed << "\n";
     exit(EXIT_FAILURE);
   }
+
+  cout << "There are " << cubes.size() << " competitors, who averaged: " << cubes << "\n";
 
 
   // event loop

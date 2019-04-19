@@ -64,3 +64,12 @@ string Judge::toString() const
 {
   return "Judge{busyUntil: " + to_string(busyUntil) + ", idle: " + to_string(idleTime) + "}";
 }
+
+std::ostream &operator<<(std::ostream &os , const CubeSet &s)
+{
+  os << "[";
+  for (const Cube *c : s)
+    os << c->solvingTime << ", ";
+  os << "]";
+  return os;
+}

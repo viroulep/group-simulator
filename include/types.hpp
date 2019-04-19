@@ -3,6 +3,7 @@
 
 #include<set>
 #include<string>
+#include<iostream>
 
 using Time = unsigned int;
 
@@ -51,5 +52,6 @@ using CubeSet = std::set<Cube *>;
 using SortedCubeSet = std::multiset<Cube *, CubeCompare>;
 using JudgeSet = std::multiset<Judge>;
 
+std::ostream &operator<<(std::ostream &os , const CubeSet &s);
 
 #endif
