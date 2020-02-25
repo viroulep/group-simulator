@@ -1,0 +1,5 @@
+init_group: 120
+run_in: 20
+run_out: 15
+competitor_ready: 30
+competitor_cleanup: 15

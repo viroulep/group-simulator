@@ -35,3 +35,4 @@ simu
 # stuff
 build
 Session.vim
+compile_commands.json
