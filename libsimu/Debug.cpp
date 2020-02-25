@@ -1,22 +1,33 @@
 #include "libsimu.hpp"
-#include "CostsModel.hpp"
+#include "Costs.hpp"
 
 using namespace std;
 
 void EmitConfig(ostream &out) {
-  out << *CostsModel::get();
+  out << *ModelCosts::get();
+  out << *ScramblingCosts::get();
 }
 
-ostream &operator<<(ostream &out, const CostsModel &CM)
+ostream &operator<<(ostream &out, const ModelCosts &MC)
 {
   out << "CostsModel {\n";
-  out << "  InitGroup: " << CM.InitGroup << "\n";
-  out << "  RunIn: " << CM.RunIn << "\n";
-  out << "  CompetitorReady: " << CM.CompetitorReady << "\n";
-  out << "  CompetitorCleanup: " << CM.CompetitorCleanup << "\n";
-  out << "  RunOut: " << CM.RunOut << "\n";
-  out << "  ShutdownGroup: " << CM.ShutdownGroup << "\n";
-  out << "  CubesPerRunner: " << CM.CubesPerRunner << "\n";
+  out << "  InitGroup: " << MC.InitGroup << "\n";
+  out << "  RunIn: " << MC.RunIn << "\n";
+  out << "  CompetitorReady: " << MC.CompetitorReady << "\n";
+  out << "  CompetitorCleanup: " << MC.CompetitorCleanup << "\n";
+  out << "  RunOut: " << MC.RunOut << "\n";
+  out << "  ShutdownGroup: " << MC.ShutdownGroup << "\n";
+  out << "  CubesPerRunner: " << MC.CubesPerRunner << "\n";
+  out << "}\n";
+  return out;
+}
+
+ostream &operator<<(ostream &out, const ScramblingCosts &SC)
+{
+  out << "ScramblingCosts {\n";
+  for (auto &entry : SC) {
+    out << string("  ") << entry.first().str() << ": " << entry.second << "\n";
+  }
   out << "}\n";
   return out;
 }

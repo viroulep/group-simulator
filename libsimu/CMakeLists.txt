@@ -1,7 +1,8 @@
 
 set(LIBSIMU_SOURCES
-  CostsModel.cpp
+  Costs.cpp
   Debug.cpp
+  WCAEvent.cpp
   )
 
 add_library(libsimu ${LIBSIMU_SOURCES})
