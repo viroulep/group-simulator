@@ -5,6 +5,6 @@ add_executable(simu minisim.cpp costs.cpp generator.cpp judge_runs_system.cpp ru
 
 find_package(yaml-cpp REQUIRED)
 
-include_directories(${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/third_party/cxxopts ${YAML_CPP_INCLUDE_DIR})
+include_directories(${PROJECT_SOURCE_DIR}/v1/include ${PROJECT_SOURCE_DIR}/third_party/cxxopts ${YAML_CPP_INCLUDE_DIR})
 
 target_link_libraries(simu ${YAML_CPP_LIBRARIES})
