@@ -3,12 +3,25 @@
 
 #include <string>
 #include <iostream>
+#include "Debug.hpp"
+
+namespace libsimu {
 
 using Time = uint64_t;
 
-int LoadModelCosts(const std::string &Filename);
-int LoadScramblingCost(const std::string &Filename);
+std::error_code LoadModelCosts(const std::string &Filename);
+std::error_code LoadScramblingCost(const std::string &Filename);
+std::error_code LoadConfig(const std::string &Filename);
+
+void TestStuff();
 
 void EmitConfig(std::ostream &out);
 
+//ConfigScramblers(n, double miscramblerate)
+//ConfigJudges(n, double extrarate)
+
+std::error_code SimuGroup(const std::string &EventId, unsigned int N);
+//SimuGroup(event, vector<avg> list)
+
+}
 #endif

@@ -7,6 +7,8 @@
 #include "libsimu.hpp"
 #include "WCAEvent.hpp"
 
+namespace libsimu {
+
 struct ModelCosts {
   Time InitGroup = 0;
   Time RunIn = 0;
@@ -19,38 +21,38 @@ struct ModelCosts {
 
   friend std::ostream &operator<<(std::ostream &out, const ModelCosts &CM);
 
-  static ModelCosts *get();
+  static ModelCosts &get();
 private:
-  ModelCosts() {};
+  ModelCosts() = default;
 };
 
 struct ScramblingCosts : public llvm::StringMap<Time> {
-  static ScramblingCosts *get();
+  static ScramblingCosts &get();
   friend std::ostream &operator<<(std::ostream &out, const ScramblingCosts &CM);
 private:
   ScramblingCosts();
 };
 
+}
+
 template <>
-struct llvm::yaml::MappingTraits<ModelCosts> {
-  static void mapping(IO &io, ModelCosts &model) {
+struct llvm::yaml::MappingTraits<libsimu::ModelCosts> {
+  static void mapping(IO &io, libsimu::ModelCosts &model) {
     io.mapOptional("init_group", model.InitGroup);
     io.mapOptional("run_in", model.RunIn);
     io.mapOptional("competitor_ready", model.CompetitorReady);
     io.mapOptional("competitor_cleanup", model.CompetitorCleanup);
-    io.mapOptional("run_out", model.RunIn);
+    io.mapOptional("run_out", model.RunOut);
     io.mapOptional("shutdown_group", model.ShutdownGroup);
-    io.mapOptional("cubes_per_runner", model.CubesPerRunner);
   }
 };
 
 template <>
-struct llvm::yaml::MappingTraits<ScramblingCosts> {
-  static void mapping(IO &io, ScramblingCosts &SC) {
+struct llvm::yaml::MappingTraits<libsimu::ScramblingCosts> {
+  static void mapping(IO &io, libsimu::ScramblingCosts &SC) {
 #define EVENT(Id, Name, MaxAttempts, CutoffAttempts, Rank) \
     io.mapOptional(#Id, SC[#Id]);
 #include "events.def"
   }
 };
-
 #endif

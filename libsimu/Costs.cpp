@@ -1,14 +1,17 @@
 #include "libsimu.hpp"
 #include "Costs.hpp"
+#include "Actors.hpp"
 #include "WCAEvent.hpp"
 
 using namespace std;
 using namespace llvm;
 
-ModelCosts *ModelCosts::get()
+namespace libsimu {
+
+ModelCosts &ModelCosts::get()
 {
   static ModelCosts MC;
-  return &MC;
+  return MC;
 }
 
 ScramblingCosts::ScramblingCosts() {
@@ -17,32 +20,37 @@ ScramblingCosts::ScramblingCosts() {
 #include "events.def"
 }
 
-ScramblingCosts *ScramblingCosts::get()
+ScramblingCosts &ScramblingCosts::get()
 {
   static ScramblingCosts SC;
-  return &SC;
+  return SC;
 }
 
-int LoadModelCosts(const string &Filename)
+template<typename T>
+error_code LoadCosts(const string &Filename)
 {
   ErrorOr<unique_ptr<MemoryBuffer>> Buff = MemoryBuffer::getFile(Filename);
   if (!Buff) {
-    cerr << "TODO\n";
-    return 1;
+    return Buff.getError();
   }
   yaml::Input YIn(Buff.get()->getBuffer());
-  YIn >> *ModelCosts::get();
-  return 0;
+  YIn >> T::get();
+  return YIn.error();
 }
 
-int LoadScramblingCost(const string &Filename)
+error_code LoadModelCosts(const string &Filename)
 {
-  ErrorOr<unique_ptr<MemoryBuffer>> Buff = MemoryBuffer::getFile(Filename);
-  if (!Buff) {
-    cerr << "TODO\n";
-    return 1;
-  }
-  yaml::Input YIn(Buff.get()->getBuffer());
-  YIn >> *ScramblingCosts::get();
-  return 0;
+  return LoadCosts<ModelCosts>(Filename);
+}
+
+error_code LoadScramblingCost(const string &Filename)
+{
+  return LoadCosts<ScramblingCosts>(Filename);
+}
+
+error_code LoadConfig(const string &Filename)
+{
+  return LoadCosts<Config>(Filename);
+}
+
 }

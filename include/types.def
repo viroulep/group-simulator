@@ -1,0 +1,16 @@
+#ifndef SIMU_EVENT_TYPE
+  #define SIMU_EVENT_TYPE(Type)
+#endif
+
+// Simulator's event types
+// NOTE: order in this is absolutely crucial!
+// We want to handle "CubeScrambled" before "RunnerReady" for similar time.
+
+SIMU_EVENT_TYPE(CubeScrambled)
+SIMU_EVENT_TYPE(CubeSolved)
+SIMU_EVENT_TYPE(CubeRanOut)
+SIMU_EVENT_TYPE(ScramblerReady)
+SIMU_EVENT_TYPE(RunnerInReady)
+SIMU_EVENT_TYPE(RunnerOutReady)
+
+#undef SIMU_EVENT_TYPE

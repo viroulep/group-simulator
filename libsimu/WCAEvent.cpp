@@ -1,31 +1,56 @@
+#include <llvm/ADT/StringSwitch.h>
 #include <map>
 #include "Costs.hpp"
 #include "WCAEvent.hpp"
 
 using namespace std;
+using namespace llvm;
+
+namespace libsimu {
 
 namespace {
-  map<WCAEvent::WCAEventKind, WCAEvent *> WCAEventMap;
+  map<WCAEvent::WCAEventKind, unique_ptr<WCAEvent>> WCAEventMap;
 }
 
-string WCAEvent::WCAEventKindToId(WCAEventKind K)
+WCAEvent::WCAEvent(WCAEventKind K, string &&Id, string &&Name, uint8_t Max, uint8_t Cutoff, uint8_t Rank) :
+  MaxAttempts(Max), CutoffAttempts(Cutoff), Rank(Rank), Id(Id), Name(Name), Kind(K) {}
+
+WCAEvent::WCAEventKind WCAEvent::WCAEventIdToKind(const string &Id)
 {
-  switch (K) {
+  return StringSwitch<WCAEventKind>(Id)
 #define EVENT(Id, Name, MaxAttempts, CutoffAttempts,  Rank) \
-    case E_##Id: \
-      return #Id;
+    .Case(#Id, E_##Id)
 #include "events.def"
-    case E_Unknown:
-      return "Unknown";
-  }
+    .Default(E_Unknown);
 }
 
 Time WCAEvent::ScramblingCost() const
 {
-  return (*ScramblingCosts::get())[WCAEventKindToId(Kind)];
+  return ScramblingCosts::get()[Id];
 }
 
-WCAEvent *WCAEvent::Get(WCAEventKind K)
+Expected<unique_ptr<WCAEvent>> WCAEvent::Create(WCAEventKind K)
 {
-  return nullptr;
+  switch (K) {
+#define EVENT(Id, Name, MaxAttempts, CutoffAttempts,  Rank) \
+    case E_##Id: \
+      return std::make_unique<WCAEvent##Id>();
+#include "events.def"
+    case E_Unknown:
+      return make_error<StringError>("Unknown WCA Event", make_error_code(errc::invalid_argument));
+  }
+}
+
+WCAEvent &WCAEvent::Get(const std::string &Id)
+{
+  return Get(WCAEventIdToKind(Id));
+}
+
+WCAEvent &WCAEvent::Get(WCAEventKind K)
+{
+  if (!WCAEventMap[K])
+    WCAEventMap[K] = ExitOnError{}(Create(K));
+  return *WCAEventMap[K].get();
+}
+
 }
