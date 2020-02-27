@@ -15,8 +15,21 @@ GroupSimulator::GroupSimulator(WCAEvent &E, const std::vector<Time> &RefTimes) :
     PendingScramble.insert(C.get());
     ActiveCubes.insert(std::move(C));
   }
+  ModelCosts &MC = ModelCosts::get();
 
-  Walltime = ModelCosts::get().InitGroup;
+  // It doesn't matter if we add the shutdown time right now, and it's
+  // inconvenient to hook when the group is done.
+  Walltime = MC.InitGroup + MC.ShutdownGroup;
+}
+
+unique_ptr<GroupSimulator> GroupSimulator::Create(const string &ModelId,
+      WCAEvent &E, const vector<Time> &RefTimes)
+{
+  // Most likely having only a couple of simulator kind doesn't deserve genericity.
+  return llvm::StringSwitch<unique_ptr<GroupSimulator>>(ModelId)
+    .Case("Runners", make_unique<RunnerSystemSimulator>(E, RefTimes))
+    .Case("JudgesRun", make_unique<JudgesRunSimulator>(E, RefTimes))
+    .Default(unique_ptr<GroupSimulator>{});
 }
 
 bool SimuEvent::operator<(const SimuEvent &r) const

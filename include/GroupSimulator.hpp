@@ -48,6 +48,9 @@ public:
   virtual std::ostream &EmitToStream(std::ostream &out) const = 0;
   friend std::ostream &operator<<(std::ostream &out, const GroupSimulator &GS);
 
+  static std::unique_ptr<GroupSimulator> Create(const std::string &ModelId,
+      WCAEvent &E, const std::vector<Time> &RefTimes);
+
 protected:
   EventQueue::iterator findFirst(SimuEvent::EventKind K);
   Time Walltime = 0;

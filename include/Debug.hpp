@@ -28,16 +28,7 @@ std::ostream &operator<<(std::ostream &os, const T &s)
   return os;
 }
 
-template<>
-std::ostream &operator<<(std::ostream &os, const std::set<std::unique_ptr<Cube>> &C)
-{
-  os << "[";
-  for (const std::unique_ptr<Cube> &C : C) {
-      os << *C << ", ";
-  }
-  os << "]";
-  return os;
-}
+std::ostream &operator<<(std::ostream &os, const std::set<std::unique_ptr<Cube>> &C);
 
 }
 

@@ -15,6 +15,16 @@ void EmitConfig(ostream &out) {
   out << Config::get();
 }
 
+ostream &operator<<(ostream &os, const set<std::unique_ptr<Cube>> &C)
+{
+  os << "[";
+  for (const unique_ptr<Cube> &C : C) {
+      os << *C << ", ";
+  }
+  os << "]";
+  return os;
+}
+
 ostream &operator<<(ostream &out, const ModelCosts &MC)
 {
   out << "CostsModel {\n";

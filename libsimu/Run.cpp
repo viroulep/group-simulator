@@ -1,24 +1,63 @@
 #include "libsimu.hpp"
 #include "WCAEvent.hpp"
 #include "GroupSimulator.hpp"
+#include "Debug.hpp"
 
 using namespace std;
 namespace libsimu {
 
-error_code SimuGroup(const string &EventId, unsigned int N)
+const string DefaultSimulator = "Runners";
+
+error_code ReconfigureStaff(uint8_t Judges, uint8_t Scramblers,
+    uint8_t Runners, uint8_t CubesPerRunner)
+{
+  // TODO check stuff
+  Config &C = Config::get();
+  C.Judges = Judges;
+  C.Scramblers = Scramblers;
+  C.Runners = Runners;
+  C.MaxCubes = CubesPerRunner;
+  return error_code{};
+}
+
+error_code ReconfigureRound(Time Cutoff, Time TimeLimit /*= 600 */)
+{
+  Config &C = Config::get();
+  C.Cutoff = Cutoff;
+  C.TimeLimit = TimeLimit;
+  return error_code{};
+}
+
+error_code ReconfigureStats(uint8_t ExtraRate, uint8_t MiscrambleRate)
+{
+  Config &C = Config::get();
+  C.ExtraRate = ExtraRate;
+  C.MiscrambleRate = MiscrambleRate;
+  return error_code{};
+}
+
+error_code SimuGroup(const string &EventId, unsigned int N, Time Avg,
+    const std::string &ModelId /*= DefaultSimulator */)
+{
+  std::vector<Time> cubes(N, Avg);
+  return SimuGroup(EventId, cubes, ModelId);
+}
+
+error_code SimuGroup(const string &EventId, const std::vector<Time> &Times,
+    const std::string &ModelId /*= DefaultSimulator */)
 {
   WCAEvent &Ev = WCAEvent::Get(EventId);
-  std::vector<Time> cubes(N, 8);
-  cout << "Event:" << Ev;
-  cout << "Number of times:" << cubes.size();
-
-
-  unique_ptr<GroupSimulator> Simu = make_unique<RunnerSystemSimulator>(Ev, cubes);
-  //unique_ptr<GroupSimulator> Simu = make_unique<JudgesRunSimulator>(Ev, cubes);
+  unique_ptr<GroupSimulator> Simu = GroupSimulator::Create(ModelId, Ev, Times);
+  // FIXME: do this only if debug
+  cout << "Simu {\n";
+  cout << "  Event: " << Ev.Name << "\n";
+  cout << "  GroupSize: " << Times.size() << "\n";
+  cout << "  Times: " << Times << "\n";
+  cout << "}\n";
 
   // event loop
   while (!Simu->Done()) {
-    cout << *Simu;
+    //cout << *Simu;
     //simu->printState();
     SimuEvent currentEvent = Simu->NextEvent();
     if (currentEvent.c) {
