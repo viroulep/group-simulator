@@ -9,7 +9,7 @@ namespace libsimu {
 
 struct WCAEvent {
   enum WCAEventKind {
-#define EVENT(Id, Name, MaxAttempts, CutoffAttempts, Rank) \
+#define EVENT(Id, Name, MaxAttempts, CutoffAttempts, Rank, DefaultScramblingTime) \
     E_##Id,
 #include "events.def"
     E_Unknown,
@@ -35,7 +35,7 @@ private:
 
 
 
-#define EVENT(Id, Name, MaxAttempts, CutoffAttempts, Rank) \
+#define EVENT(Id, Name, MaxAttempts, CutoffAttempts, Rank, DefaultScramblingTime) \
 struct WCAEvent##Id : public WCAEvent { \
   WCAEvent##Id() : WCAEvent(E_##Id, #Id, #Name, MaxAttempts, CutoffAttempts, Rank) {} \
 };

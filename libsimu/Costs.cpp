@@ -15,8 +15,8 @@ ModelCosts &ModelCosts::get()
 }
 
 ScramblingCosts::ScramblingCosts() {
-#define EVENT(Id, Name, MaxAttempts, CutoffAttempts, Rank) \
-  (*this)[#Id] = 0;
+#define EVENT(Id, Name, MaxAttempts, CutoffAttempts, Rank, DefaultScramblingTime) \
+  (*this)[#Id] = DefaultScramblingTime;
 #include "events.def"
 }
 

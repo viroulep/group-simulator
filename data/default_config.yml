@@ -1,0 +1,8 @@
+judges: 10
+scramblers: 3
+runners: 2
+cubes_per_runner: 3
+extra_rate: 0
+miscramble_rate: 0
+time_limit: 600
+cutoff: 600

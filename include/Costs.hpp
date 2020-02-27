@@ -10,11 +10,11 @@
 namespace libsimu {
 
 struct ModelCosts {
-  Time InitGroup = 0;
-  Time RunIn = 0;
-  Time CompetitorReady = 0;
-  Time CompetitorCleanup = 0;
-  Time RunOut = 0;
+  Time InitGroup = 120;
+  Time RunIn = 25;
+  Time CompetitorReady = 30;
+  Time CompetitorCleanup = 15;
+  Time RunOut = 20;
   Time ShutdownGroup = 0;
   // Or CubesPerJudge if no runner
   unsigned int CubesPerRunner = 1;
@@ -50,7 +50,7 @@ struct llvm::yaml::MappingTraits<libsimu::ModelCosts> {
 template <>
 struct llvm::yaml::MappingTraits<libsimu::ScramblingCosts> {
   static void mapping(IO &io, libsimu::ScramblingCosts &SC) {
-#define EVENT(Id, Name, MaxAttempts, CutoffAttempts, Rank) \
+#define EVENT(Id, Name, MaxAttempts, CutoffAttempts, Rank, DefaultScramblingTime) \
     io.mapOptional(#Id, SC[#Id]);
 #include "events.def"
   }

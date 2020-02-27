@@ -18,7 +18,7 @@ WCAEvent::WCAEvent(WCAEventKind K, string &&Id, string &&Name, uint8_t Max, uint
 WCAEvent::WCAEventKind WCAEvent::WCAEventIdToKind(const string &Id)
 {
   return StringSwitch<WCAEventKind>(Id)
-#define EVENT(Id, Name, MaxAttempts, CutoffAttempts,  Rank) \
+#define EVENT(Id, Name, MaxAttempts, CutoffAttempts, Rank, DefaultScramblingTime) \
     .Case(#Id, E_##Id)
 #include "events.def"
     .Default(E_Unknown);
@@ -32,7 +32,7 @@ Time WCAEvent::ScramblingCost() const
 Expected<unique_ptr<WCAEvent>> WCAEvent::Create(WCAEventKind K)
 {
   switch (K) {
-#define EVENT(Id, Name, MaxAttempts, CutoffAttempts,  Rank) \
+#define EVENT(Id, Name, MaxAttempts, CutoffAttempts, Rank, DefaultScramblingTime) \
     case E_##Id: \
       return std::make_unique<WCAEvent##Id>();
 #include "events.def"
