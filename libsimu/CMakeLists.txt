@@ -1,11 +1,14 @@
 
 set(LIBSIMU_SOURCES
-  Costs.cpp
-  Debug.cpp
   Actors.cpp
-  WCAEvent.cpp
+  Costs.cpp
+  Cube.cpp
+  Debug.cpp
   GroupSimulator.cpp
+  JudgesRunSimulator.cpp
+  RunnerSystemSimulator.cpp
   Run.cpp
+  WCAEvent.cpp
   )
 
 add_library(libsimu ${LIBSIMU_SOURCES})

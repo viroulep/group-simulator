@@ -12,21 +12,8 @@ struct Judge {
   Time busyUntil;
   Time idleTime;
 
-  // Between 0 and 100, 0 means no extra can occur
-  static uint8_t ExtraRate;
   bool operator<(const Judge &r) const;
   friend std::ostream &operator<<(std::ostream &out, const Judge &J);
-};
-
-struct Runner {
-  static uint8_t MaxCubes;
-  friend std::ostream &operator<<(std::ostream &out, const Runner &R);
-};
-
-struct Scrambler {
-  // Between 0 and 100, 0 means no miscramble
-  static uint8_t MiscrambleRate;
-  friend std::ostream &operator<<(std::ostream &out, const Scrambler &S);
 };
 
 // Proxy class to (re)-fill J/R/S static data.
@@ -37,6 +24,12 @@ struct Config {
   uint8_t Judges = 10;
   uint8_t Runners = 2;
   uint8_t Scramblers = 3;
+  // Between 0 and 100, 0 means no extra can occur
+  uint8_t ExtraRate = 0;
+  // The maximum of cubes a runner can take
+  uint8_t MaxCubes = 3;
+  // Between 0 and 100, 0 means no miscramble
+  uint8_t MiscrambleRate = 0;
   Time TimeLimit = MaxTimeLimit;
   Time Cutoff = 600;
   friend std::ostream &operator<<(std::ostream &out, const Config &C);
@@ -49,9 +42,9 @@ private:
 template <>
 struct llvm::yaml::MappingTraits<libsimu::Config> {
   static void mapping(IO &io, libsimu::Config &C) {
-    io.mapOptional("extra_rate", libsimu::Judge::ExtraRate);
-    io.mapOptional("cubes_per_runner", libsimu::Runner::MaxCubes);
-    io.mapOptional("miscramble_rate", libsimu::Scrambler::MiscrambleRate);
+    io.mapOptional("extra_rate", C.ExtraRate);
+    io.mapOptional("cubes_per_runner", C.MaxCubes);
+    io.mapOptional("miscramble_rate", C.MiscrambleRate);
     io.mapOptional("judges", C.Judges);
     io.mapOptional("runners", C.Runners);
     io.mapOptional("scramblers", C.Scramblers);

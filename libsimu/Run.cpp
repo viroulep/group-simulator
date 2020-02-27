@@ -8,14 +8,13 @@ namespace libsimu {
 error_code SimuGroup(const string &EventId, unsigned int N)
 {
   WCAEvent &Ev = WCAEvent::Get(EventId);
-  CubeSet cubes;
-  cout << Ev;
+  std::vector<Time> cubes(N, 8);
+  cout << "Event:" << Ev;
+  cout << "Number of times:" << cubes.size();
 
-  for (unsigned int i = 0; i < N; i++) {
-    cubes.insert(new Cube(12));
-  }
 
-  unique_ptr<RunnerSystemSimulator> Simu = make_unique<RunnerSystemSimulator>(Ev, cubes);
+  unique_ptr<GroupSimulator> Simu = make_unique<RunnerSystemSimulator>(Ev, cubes);
+  //unique_ptr<GroupSimulator> Simu = make_unique<JudgesRunSimulator>(Ev, cubes);
 
   // event loop
   while (!Simu->Done()) {

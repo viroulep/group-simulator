@@ -39,7 +39,7 @@ int main(int argc, char **argv) {
 
   EmitConfig(std::cout);
 
-  SimuGroup("777", 20);
+  SimuGroup("222", 20);
 
   TestStuff();
 

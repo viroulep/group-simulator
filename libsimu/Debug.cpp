@@ -2,6 +2,7 @@
 #include "Costs.hpp"
 #include "Debug.hpp"
 #include "Actors.hpp"
+#include "Cube.hpp"
 #include "GroupSimulator.hpp"
 
 using namespace std;
@@ -41,14 +42,14 @@ ostream &operator<<(ostream &out, const Config &C)
 {
   // zext the uint8_t so that it's not considered as a (non-printable) char.
   out << "Config {\n";
-  out << "  CubesPerRunner: " << uint64_t{Runner::MaxCubes} << "\n";
-  out << "  ExtraRate: " << uint64_t{Judge::ExtraRate} << "\n";
-  out << "  MiscrambleRate: " << uint64_t{Scrambler::MiscrambleRate} << "\n";
-  out << "  Judges: " << uint64_t{C.Judges} << "\n";
-  out << "  Runners: " << uint64_t{C.Runners} << "\n";
-  out << "  Scramblers: " << uint64_t{C.Scramblers} << "\n";
-  out << "  TimeLimit: " << C.TimeLimit << "\n";
-  out << "  Cutoff: " << C.Cutoff << "\n";
+  out << "  CubesPerRunner: " << to_string(C.MaxCubes) << "\n";
+  out << "  ExtraRate: " << to_string(C.ExtraRate) << "\n";
+  out << "  MiscrambleRate: " << to_string(C.MiscrambleRate) << "\n";
+  out << "  Judges: " << to_string(C.Judges) << "\n";
+  out << "  Runners: " << to_string(C.Runners) << "\n";
+  out << "  Scramblers: " << to_string(C.Scramblers) << "\n";
+  out << "  TimeLimit: " << to_string(C.TimeLimit) << "\n";
+  out << "  Cutoff: " << to_string(C.Cutoff) << "\n";
   out << "}\n";
   return out;
 }
@@ -81,21 +82,32 @@ ostream &operator<<(ostream &out, const Judge &J)
 
 ostream &operator<<(ostream &out, const GroupSimulator &GS)
 {
-  return GS.EmitToStream(out);
+  out << "Simulator {\n";
+  out << "  walltime: " << GS.Walltime << "\n";
+  out << "  activeCubes: " << GS.ActiveCubes << "\n";
+  out << "  idle scramblers: " << GS.ScramblersAvailable << "\n";
+  out << "  pendingScramble: " << GS.PendingScramble << "\n";
+  out << "  pendingRunIn: " << GS.ScrambledCubes << "\n";
+  out << "  pendingRunOut: " << GS.SolvedCubes << "\n";
+  out << "  judges: " << GS.Judges << "\n";
+  out << "  remaining events: " << GS.Events << "\n";
+  GS.EmitToStream(out);
+  out << "}\n";
+  return out;
 }
 
 ostream &RunnerSystemSimulator::EmitToStream(ostream &out) const
 {
-  out << "Simulator {\n";
-  out << "  walltime: " << Walltime << "\n";
-  out << "  activeCubes: " << ActiveCubes << "\n";
-  out << "  idle scramblers: " << ScramblersAvailable << "\n";
-  out << "  pendingScramble: " << PendingScramble << "\n";
-  out << "  pendingRunIn: " << ScrambledCubes << "\n";
-  out << "  pendingRunOut: " << SolvedCubes << "\n";
-  out << "  judges: " << Judges << "\n";
-  out << "  remaining events: " << Events << "\n";
-  out << "----------------------\n";
+  out << "  RunnerSystemSimulator {\n";
+  out << "  }\n";
+  return out;
+}
+
+ostream &JudgesRunSimulator::EmitToStream(ostream &out) const
+{
+  out << "  JudgesRunSimulator {\n";
+  out << "  judgesIdle_: " << judgesIdle_ << "\n";
+  out << "  }\n";
   return out;
 }
 

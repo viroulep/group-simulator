@@ -4,20 +4,10 @@
 #include <set>
 #include "libsimu.hpp"
 #include "Actors.hpp"
+#include "Cube.hpp"
 #include "WCAEvent.hpp"
 
 namespace libsimu {
-
-struct Cube {
-  Cube(Time T);
-  uint8_t AttemptsDone = 0;
-  const Time SolvingTime;
-  // This attribute is used for sorting!
-  // The slowest the cuber, the highest priority they are
-  const Time Prio;
-  bool operator<(const Cube &r) const;
-  friend std::ostream &operator<<(std::ostream &out, const Cube &C);
-};
 
 struct SimuEvent {
   enum EventKind {
@@ -38,20 +28,15 @@ struct SimuEvent {
   static std::string getEventTypeName(EventKind K);
 };
 
-struct CubeCompare {
-  bool operator()(const Cube * c1, const Cube * c2) const;
-};
-
 
 using EventQueue = std::multiset<SimuEvent>;
 using JudgeQueue = std::multiset<Judge>;
 
-using CubeSet = std::set<Cube *>;
 using SortedCubeSet = std::multiset<Cube *, CubeCompare>;
 
 struct GroupSimulator {
 public:
-  GroupSimulator(WCAEvent &E, const CubeSet &cubes);
+  GroupSimulator(WCAEvent &E, const std::vector<Time> &RefTimes);
   virtual ~GroupSimulator() {};
   SimuEvent NextEvent();
   Time GetWalltime() const { return Walltime; };
@@ -69,28 +54,32 @@ protected:
   EventQueue Events;
   JudgeQueue Judges;
   WCAEvent &E;
-  CubeSet ActiveCubes;
+  // The set of active cubes throughout the simulation.
+  // It has ownership of the pointer.
+  std::set<std::unique_ptr<Cube>> ActiveCubes;
+
+  // Other (sorted) sets of cubes, they contain only cubes which are still active.
   SortedCubeSet PendingScramble;
   SortedCubeSet ScrambledCubes;
   SortedCubeSet SolvedCubes;
   uint8_t ScramblersAvailable = 0;
-  //const WCAEventKind eventForGroup_;
-  //const unsigned int attemptsForCutoff_;
-  //const Time cutoff_;
-  //const Time timeLimit_;
-
-  // SimuEvents
-  // ReadyCubes
-  // ScramblersAvailable
-  // PendingRunInCubes
-  // ReadyJudges
-  // PendingRunOutCubes
 };
 
 class RunnerSystemSimulator : public GroupSimulator {
 public:
-  RunnerSystemSimulator(WCAEvent &E, const CubeSet &cubes);
+  RunnerSystemSimulator(WCAEvent &E, const std::vector<Time> &RefTimes);
   ~RunnerSystemSimulator() {};
+  virtual std::ostream &EmitToStream(std::ostream &out) const override;
+#define SIMU_EVENT_TYPE(Name) \
+  virtual void ActOn##Name(const SimuEvent &e) override;
+#include "types.def"
+};
+
+class JudgesRunSimulator : public GroupSimulator {
+public:
+  JudgesRunSimulator(WCAEvent &E, const std::vector<Time> &RefTimes);
+  ~JudgesRunSimulator() {};
+  unsigned int judgesIdle_ = 0;
   virtual std::ostream &EmitToStream(std::ostream &out) const override;
 #define SIMU_EVENT_TYPE(Name) \
   virtual void ActOn##Name(const SimuEvent &e) override;
