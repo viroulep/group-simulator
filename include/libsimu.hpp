@@ -21,7 +21,7 @@ std::error_code LoadModelCosts(const std::string &Filename);
 std::error_code LoadScramblingCost(const std::string &Filename);
 std::error_code LoadConfig(const std::string &Filename);
 
-void TestStuff();
+int TestStuff(int a);
 void EmitConfig(std::ostream &out);
 
 // Depending on the model used, 'Runners' may be unused!

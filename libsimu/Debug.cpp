@@ -131,12 +131,13 @@ ostream &operator<<(ostream &out, const WCAEvent &Ev)
   return out;
 }
 
-void TestStuff()
+int TestStuff(int a)
 {
   WCAEvent &e = WCAEvent::Get("333");
   cout << "Addr for 333: " << &e << "\n";
   WCAEvent &e2 = WCAEvent::Get("333");
   cout << "Addr for 333: " << &e2 << "\n";
+  return 2*a;
 }
 
 }
