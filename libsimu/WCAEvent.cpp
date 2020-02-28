@@ -37,8 +37,10 @@ Expected<unique_ptr<WCAEvent>> WCAEvent::Create(WCAEventKind K)
       return std::make_unique<WCAEvent##Id>();
 #include "events.def"
     case E_Unknown:
-      return make_error<StringError>("Unknown WCA Event", make_error_code(errc::invalid_argument));
+      break;
   }
+
+  return make_error<StringError>("Unknown WCA Event", make_error_code(errc::invalid_argument));
 }
 
 WCAEvent &WCAEvent::Get(const std::string &Id)

@@ -36,14 +36,7 @@ error_code ReconfigureStats(uint8_t ExtraRate, uint8_t MiscrambleRate)
   return error_code{};
 }
 
-error_code SimuGroup(const string &EventId, unsigned int N, Time Avg,
-    const std::string &ModelId /*= DefaultSimulator */)
-{
-  std::vector<Time> cubes(N, Avg);
-  return SimuGroup(EventId, cubes, ModelId);
-}
-
-error_code SimuGroup(const string &EventId, const std::vector<Time> &Times,
+error_code SimuGroup(Time *Result, const string &EventId, const vector<Time> &Times,
     const std::string &ModelId /*= DefaultSimulator */)
 {
   WCAEvent &Ev = WCAEvent::Get(EventId);
@@ -56,29 +49,52 @@ error_code SimuGroup(const string &EventId, const std::vector<Time> &Times,
   cout << "}\n";
 
   // event loop
-  while (!Simu->Done()) {
-    //cout << *Simu;
-    //simu->printState();
-    SimuEvent currentEvent = Simu->NextEvent();
-    if (currentEvent.c) {
-      assert(currentEvent.c->attemptsDone >= 0 && currentEvent.c->attemptsDone < 5);
-    }
-    switch (currentEvent.Kind) {
-#define SIMU_EVENT_TYPE(Name)            \
-      case SimuEvent::Name:                         \
-        Simu->ActOn##Name(currentEvent); \
-      break;
-#include "types.def"
-      case SimuEvent::Unknown:
-        cout << "WTF!\n";
-    }
-    Simu->DoneEvent(currentEvent);
+  *Result = Simu->Run();
+
+  return error_code{};
+}
+
+error_code OptimizeStaff(OptResult *Res, const string &EventId,
+  const vector<Time> &Times, uint8_t MaxJudges, uint8_t TotalStaff,
+  const string &ModelId /* = DefaultSimulator */)
+{
+  WCAEvent &Ev = WCAEvent::Get(EventId);
+  static constexpr uint8_t MinScramblers = 1;
+  uint8_t MinRunners = 0;
+  // FIXME: ugly
+  if (GroupSimulator::ModelUsesRunners(ModelId))
+    MinRunners = 1;
+
+  uint8_t MinJudges = MaxJudges / 2;
+
+  if (MaxJudges > TotalStaff - MinScramblers - MinRunners) {
+    cerr << "MaxJudges needs to leave space for scramblers and runners\n";
   }
 
-  chrono::seconds roundDuration(Simu->GetWalltime());
-  chrono::minutes durationInMinute = chrono::duration_cast<chrono::minutes>(roundDuration);
-  chrono::seconds remaining = roundDuration - durationInMinute;
-  cout << "Group took " << durationInMinute.count() << " minutes and " << remaining.count() << " seconds.\n";
+  Res->BestResult = std::numeric_limits<decltype(OptResult::BestResult)>::max();
+  Res->Scramblers = std::numeric_limits<decltype(OptResult::Scramblers)>::max();
+  Config &C = Config::get();
+
+  for (uint8_t J = MinJudges; J <= MaxJudges; J++) {
+    uint8_t RemainingStaff = TotalStaff - J;
+    for (uint8_t S = MinScramblers; S <= RemainingStaff - MinRunners; S++) {
+      uint8_t R = RemainingStaff - S;
+      ReconfigureStaff(J, S, R, C.MaxCubes);
+      unique_ptr<GroupSimulator> Simu = GroupSimulator::Create(ModelId, Ev, Times);
+      if (!GroupSimulator::ModelUsesRunners(ModelId)) {
+        R = 0;
+      }
+      Time Duration = Simu->Run();
+      // Update the minimum if needed, for identical times, less scramblers wins
+      if (tie(Duration, S) < tie(Res->BestResult, Res->Scramblers)) {
+        Res->BestResult = Duration;
+        Res->Judges = J;
+        Res->Scramblers = S;
+        Res->Runners = R;
+      }
+    }
+  }
+
 
   return error_code{};
 }

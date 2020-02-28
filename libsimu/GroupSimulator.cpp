@@ -25,11 +25,47 @@ GroupSimulator::GroupSimulator(WCAEvent &E, const std::vector<Time> &RefTimes) :
 unique_ptr<GroupSimulator> GroupSimulator::Create(const string &ModelId,
       WCAEvent &E, const vector<Time> &RefTimes)
 {
+  // We don't use a string switch here, because using it actually *creates*
+  // all unique_ptr before choosing the right one!
+  if (ModelId == "Runners") {
+    return make_unique<RunnerSystemSimulator>(E, RefTimes);
+  } else if (ModelId == "JudgesRun") {
+    return make_unique<JudgesRunSimulator>(E, RefTimes);
+  } else {
+    return unique_ptr<GroupSimulator>{};
+  }
+}
+
+bool GroupSimulator::ModelUsesRunners(const string &ModelId)
+{
   // Most likely having only a couple of simulator kind doesn't deserve genericity.
-  return llvm::StringSwitch<unique_ptr<GroupSimulator>>(ModelId)
-    .Case("Runners", make_unique<RunnerSystemSimulator>(E, RefTimes))
-    .Case("JudgesRun", make_unique<JudgesRunSimulator>(E, RefTimes))
-    .Default(unique_ptr<GroupSimulator>{});
+  return llvm::StringSwitch<bool>(ModelId)
+    .Case("Runners", true)
+    .Case("JudgesRun", false)
+    .Default(false);
+}
+
+Time GroupSimulator::Run()
+{
+  while (!Done()) {
+    //cout << *Simu;
+    //simu->printState();
+    SimuEvent currentEvent = NextEvent();
+    if (currentEvent.c) {
+      assert(currentEvent.c->AttemptsDone >= 0 && currentEvent.c->AttemptsDone < 5);
+    }
+    switch (currentEvent.Kind) {
+#define SIMU_EVENT_TYPE(Name)            \
+      case SimuEvent::Name:                         \
+        ActOn##Name(currentEvent); \
+      break;
+#include "types.def"
+      case SimuEvent::Unknown:
+        cout << "WTF!\n";
+    }
+    DoneEvent(currentEvent);
+  }
+  return Walltime;
 }
 
 bool SimuEvent::operator<(const SimuEvent &r) const
@@ -41,12 +77,13 @@ string SimuEvent::getEventTypeName(EventKind K)
 {
   switch(K) {
     case Unknown:
-      return "Unknown";
+      break;
 #define SIMU_EVENT_TYPE(Name) \
     case Name:                \
       return #Name;
 #include "types.def"
   }
+  return "Unknown";
 }
 
 

@@ -11,5 +11,5 @@ set(LIBSIMU_SOURCES
   WCAEvent.cpp
   )
 
-add_library(libsimu ${LIBSIMU_SOURCES})
+add_library(libsimu SHARED ${LIBSIMU_SOURCES})
 llvm_config(libsimu Support)

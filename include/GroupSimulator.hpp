@@ -38,10 +38,7 @@ struct GroupSimulator {
 public:
   GroupSimulator(WCAEvent &E, const std::vector<Time> &RefTimes);
   virtual ~GroupSimulator() {};
-  SimuEvent NextEvent();
-  Time GetWalltime() const { return Walltime; };
-  virtual void DoneEvent(SimuEvent SE);
-  virtual bool Done() const;
+  Time Run();
 #define SIMU_EVENT_TYPE(Name) \
   virtual void ActOn##Name(const SimuEvent &e) = 0;
 #include "types.def"
@@ -50,6 +47,7 @@ public:
 
   static std::unique_ptr<GroupSimulator> Create(const std::string &ModelId,
       WCAEvent &E, const std::vector<Time> &RefTimes);
+  static bool ModelUsesRunners(const std::string &ModelId);
 
 protected:
   EventQueue::iterator findFirst(SimuEvent::EventKind K);
@@ -66,6 +64,9 @@ protected:
   SortedCubeSet ScrambledCubes;
   SortedCubeSet SolvedCubes;
   uint8_t ScramblersAvailable = 0;
+  virtual void DoneEvent(SimuEvent SE);
+  SimuEvent NextEvent();
+  virtual bool Done() const;
 };
 
 class RunnerSystemSimulator : public GroupSimulator {
@@ -73,6 +74,7 @@ public:
   RunnerSystemSimulator(WCAEvent &E, const std::vector<Time> &RefTimes);
   ~RunnerSystemSimulator() {};
   virtual std::ostream &EmitToStream(std::ostream &out) const override;
+protected:
 #define SIMU_EVENT_TYPE(Name) \
   virtual void ActOn##Name(const SimuEvent &e) override;
 #include "types.def"
@@ -82,8 +84,9 @@ class JudgesRunSimulator : public GroupSimulator {
 public:
   JudgesRunSimulator(WCAEvent &E, const std::vector<Time> &RefTimes);
   ~JudgesRunSimulator() {};
-  unsigned int judgesIdle_ = 0;
   virtual std::ostream &EmitToStream(std::ostream &out) const override;
+protected:
+  unsigned int judgesIdle_ = 0;
 #define SIMU_EVENT_TYPE(Name) \
   virtual void ActOn##Name(const SimuEvent &e) override;
 #include "types.def"

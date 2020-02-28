@@ -22,20 +22,11 @@ static cl::opt<std::string> Psychsheet("list", cl::desc("Specify path to the lis
 
 static cl::opt<std::string> ModelId("m", cl::desc("Set the simulator to use (Runners, JudgesRun)"), cl::value_desc("model_id"), cl::init("Runners"));
 
-static cl::opt<unsigned> Judges("j", cl::desc("Overrides the number of judges"), cl::value_desc("judges"), cl::init(10));
-static cl::opt<unsigned> Scramblers("s", cl::desc("Overrides the number of scramblers"), cl::value_desc("scramblers"), cl::init(3));
-static cl::opt<unsigned> Runners("r", cl::desc("Overrides the number of runners"), cl::value_desc("runners"), cl::init(2));
-static cl::opt<unsigned> CubesPerRunner("r-cubes", cl::desc("Set the number of cubes per runner"), cl::value_desc("cubes"), cl::init(3));
-
-static cl::opt<unsigned> TimeLimit("tl", cl::desc("Set the time limit"), cl::value_desc("seconds"), cl::init(600));
-static cl::opt<unsigned> Cutoff("cut", cl::desc("Set the cutoff"), cl::value_desc("seconds"), cl::init(600));
+static cl::opt<unsigned> Judges("j", cl::desc("Set the max number of judges"), cl::value_desc("judges"), cl::init(10));
+static cl::opt<unsigned> Staff("staff", cl::desc("Set the number of staff"), cl::value_desc("runners"), cl::init(2));
 
 static cl::opt<unsigned> GroupSize("size", cl::desc("Set the group size"), cl::value_desc("number"), cl::init(20));
 static cl::opt<unsigned> Avg("avg-time", cl::desc("Set the group average time"), cl::value_desc("seconds"), cl::init(10));
-
-// Experimental or not implemented
-static cl::opt<unsigned> ExtraRate("extra", cl::desc("Set the extra rate"), cl::value_desc("percentage"), cl::init(0), cl::Hidden);
-static cl::opt<unsigned> MiscrambleRate("miscramble", cl::desc("Set the miscramble rate"), cl::value_desc("percentage"), cl::init(0), cl::Hidden);
 
 
 int main(int argc, char **argv) {
@@ -60,22 +51,23 @@ int main(int argc, char **argv) {
     }
   }
 
-  ReconfigureStaff(Judges, Scramblers, Runners, CubesPerRunner);
-  ReconfigureRound(Cutoff, TimeLimit);
-  ReconfigureStats(ExtraRate, MiscrambleRate);
-
-  EmitConfig(std::cout);
+  //EmitConfig(std::cout);
 
   std::vector<Time> Times(GroupSize, Avg);
 
-  Time Result;
+  OptResult Result{0};
 
-  SimuGroup(&Result, EventId, Times, ModelId);
+  OptimizeStaff(&Result, EventId, Times, Judges, Staff, ModelId);
 
-  chrono::seconds roundDuration(Result);
+  chrono::seconds roundDuration(Result.BestResult);
   chrono::minutes durationInMinute = chrono::duration_cast<chrono::minutes>(roundDuration);
   chrono::seconds remaining = roundDuration - durationInMinute;
-  cout << "Group took " << durationInMinute.count() << " minutes and " << remaining.count() << " seconds.\n";
+  cout << "Best group took " << durationInMinute.count() << " minutes and " << remaining.count() << " seconds.\n";
+  cout << "Configuration {\n";
+  cout << "  Judges: " << to_string(Result.Judges) << "\n";
+  cout << "  Scramblers: " << to_string(Result.Scramblers) << "\n";
+  cout << "  Runners: " << to_string(Result.Runners) << "\n";
+  cout << "}\n";
 
   return 0;
 }
