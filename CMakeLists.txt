@@ -19,14 +19,13 @@ include(BuildType)
 list(APPEND CMAKE_MODULE_PATH "${LLVM_CMAKE_DIR}")
 include(AddLLVM)
 
-#add_subdirectory(v1)
 include_directories(${LLVM_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/include)
 # LLVM 7 headers have an annoying class-memaccess warning
-add_compile_options("-fno-rtti" "-Wall" "-Wno-class-memaccess")
+add_compile_options(-fno-rtti -Wall -Wno-class-memaccess -fno-exceptions)
 
-if(NOT CMAKE_BUILD_TYPE STREQUAL release)
-  add_compile_options("-g")
-endif()
+# Let's completely override CMake's default
+set(CMAKE_CXX_FLAGS_RELEASE "-s -O3 -DNDEBUG")
+set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-Wl,--gc-sections")
 
 add_subdirectory(libsimu)
 add_subdirectory(src)
