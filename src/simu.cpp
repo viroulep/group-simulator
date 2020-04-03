@@ -23,7 +23,6 @@ static cl::opt<std::string> ModelId("m", cl::desc("Set the simulator to use (Run
 static cl::opt<unsigned> Judges("j", cl::desc("Overrides the number of judges"), cl::value_desc("judges"));
 static cl::opt<unsigned> Scramblers("s", cl::desc("Overrides the number of scramblers"), cl::value_desc("scramblers"));
 static cl::opt<unsigned> Runners("r", cl::desc("Overrides the number of runners"), cl::value_desc("runners"));
-static cl::opt<unsigned> CubesPerRunner("r-cubes", cl::desc("Set the number of cubes per runner"), cl::value_desc("cubes"));
 
 static cl::opt<unsigned> TimeLimit("tl", cl::desc("Set the time limit"), cl::value_desc("seconds"), cl::init(600));
 static cl::opt<unsigned> Cutoff("cut", cl::desc("Set the cutoff"), cl::value_desc("seconds"), cl::init(600));
@@ -50,7 +49,7 @@ int main(int argc, char **argv) {
 
   // Default values are 0, and since they are invalid values they are considered
   // as not overriding the config.
-  ReconfigureStaff(Judges, Scramblers, Runners, CubesPerRunner);
+  ReconfigureStaff(as<JudgesParam>(Judges), as<ScramblersParam>(Scramblers), as<RunnersParam>(Runners));
   ReconfigureRound(Cutoff, TimeLimit);
   ReconfigureStats(ExtraRate, MiscrambleRate);
 

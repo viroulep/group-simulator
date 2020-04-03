@@ -9,21 +9,18 @@ namespace libsimu {
 
 const string DefaultSimulator = "Runners";
 
-error_code ReconfigureStaff(uint8_t Judges, uint8_t Scramblers,
-    uint8_t Runners, uint8_t CubesPerRunner)
+error_code ReconfigureStaff(JudgesParam J, ScramblersParam S,
+    RunnersParam R)
 {
   Setup &C = Setup::get();
-  if (Judges) {
-    C.Judges = Judges;
+  if (auto j = as_integer(J)) {
+    C.Judges = j;
   }
-  if (Scramblers) {
-    C.Scramblers = Scramblers;
+  if (auto s = as_integer(S)) {
+    C.Scramblers = s;
   }
-  if (Runners) {
-    C.Runners = Runners;
-  }
-  if (CubesPerRunner) {
-    C.MaxCubes = CubesPerRunner;
+  if (auto r = as_integer(R)) {
+    C.Runners = r;
   }
   return error_code{};
 }
@@ -82,13 +79,12 @@ error_code OptimizeStaff(OptResult *Res, const string &EventId,
 
   Res->BestResult = std::numeric_limits<decltype(OptResult::BestResult)>::max();
   Res->Scramblers = std::numeric_limits<decltype(OptResult::Scramblers)>::max();
-  Setup &C = Setup::get();
 
   for (uint8_t J = MinJudges; J <= MaxJudges; J++) {
     uint8_t RemainingStaff = TotalStaff - J;
     for (uint8_t S = MinScramblers; S <= RemainingStaff - MinRunners; S++) {
       uint8_t R = RemainingStaff - S;
-      ReconfigureStaff(J, S, R, C.MaxCubes);
+      ReconfigureStaff(JudgesParam{J}, ScramblersParam{S}, RunnersParam{R});
       unique_ptr<GroupSimulator> Simu = GroupSimulator::Create(ModelId, Ev, Times);
       if (!GroupSimulator::ModelUsesRunners(ModelId)) {
         R = 0;

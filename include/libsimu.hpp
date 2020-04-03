@@ -10,6 +10,16 @@ namespace libsimu {
 using Time = uint64_t;
 extern const std::string DefaultSimulator;
 
+enum class JudgesParam : std::uint8_t {};
+enum class RunnersParam : std::uint8_t {};
+enum class ScramblersParam : std::uint8_t {};
+
+template<typename T>
+std::uint8_t as_integer(T x) { return static_cast<std::uint8_t>(x); }
+template<typename T>
+T as(std::uint8_t x) { return T{x}; }
+
+
 struct OptResult {
   Time BestResult;
   uint8_t Judges;
@@ -23,8 +33,8 @@ int TestStuff(int a);
 void EmitConfig(std::ostream &out);
 
 // Depending on the model used, 'Runners' may be unused!
-std::error_code ReconfigureStaff(uint8_t Judges, uint8_t Scramblers,
-  uint8_t Runners, uint8_t CubesPerRunner);
+std::error_code ReconfigureStaff(JudgesParam J, ScramblersParam S,
+  RunnersParam R);
 
 // By default both cutoff and time limit is 600 (a cutoff of 600 is equivalent to
 // no cutoff in the context of this program).
