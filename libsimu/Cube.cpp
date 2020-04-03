@@ -1,12 +1,12 @@
 #include <tuple>
-#include "Actors.hpp"
+#include "Config.hpp"
 #include "Cube.hpp"
 
 using namespace std;
 
 namespace libsimu {
 
-Cube::Cube(Time T) : SolvingTime(T), Prio(Config::MaxTimeLimit - T) {};
+Cube::Cube(Time T) : SolvingTime(T), Prio(Setup::MaxTimeLimit - T) {};
 
 bool Cube::operator<(const Cube &C) const
 {

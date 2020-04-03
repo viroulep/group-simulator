@@ -1,6 +1,7 @@
 #include "libsimu.hpp"
 #include "WCAEvent.hpp"
 #include "GroupSimulator.hpp"
+#include "Config.hpp"
 #include "Debug.hpp"
 
 using namespace std;
@@ -12,7 +13,7 @@ error_code ReconfigureStaff(uint8_t Judges, uint8_t Scramblers,
     uint8_t Runners, uint8_t CubesPerRunner)
 {
   // TODO check stuff
-  Config &C = Config::get();
+  Setup &C = Setup::get();
   C.Judges = Judges;
   C.Scramblers = Scramblers;
   C.Runners = Runners;
@@ -22,7 +23,7 @@ error_code ReconfigureStaff(uint8_t Judges, uint8_t Scramblers,
 
 error_code ReconfigureRound(Time Cutoff, Time TimeLimit /*= 600 */)
 {
-  Config &C = Config::get();
+  Setup &C = Setup::get();
   C.Cutoff = Cutoff;
   C.TimeLimit = TimeLimit;
   return error_code{};
@@ -30,7 +31,7 @@ error_code ReconfigureRound(Time Cutoff, Time TimeLimit /*= 600 */)
 
 error_code ReconfigureStats(uint8_t ExtraRate, uint8_t MiscrambleRate)
 {
-  Config &C = Config::get();
+  Setup &C = Setup::get();
   C.ExtraRate = ExtraRate;
   C.MiscrambleRate = MiscrambleRate;
   return error_code{};
@@ -41,6 +42,7 @@ error_code SimuGroup(Time *Result, const string &EventId, const vector<Time> &Ti
 {
   WCAEvent &Ev = WCAEvent::Get(EventId);
   unique_ptr<GroupSimulator> Simu = GroupSimulator::Create(ModelId, Ev, Times);
+  // FIXME: emit config
   // FIXME: do this only if debug
   cout << "Simu {\n";
   cout << "  Event: " << Ev.Name << "\n";
@@ -73,7 +75,7 @@ error_code OptimizeStaff(OptResult *Res, const string &EventId,
 
   Res->BestResult = std::numeric_limits<decltype(OptResult::BestResult)>::max();
   Res->Scramblers = std::numeric_limits<decltype(OptResult::Scramblers)>::max();
-  Config &C = Config::get();
+  Setup &C = Setup::get();
 
   for (uint8_t J = MinJudges; J <= MaxJudges; J++) {
     uint8_t RemainingStaff = TotalStaff - J;

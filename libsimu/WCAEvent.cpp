@@ -1,6 +1,6 @@
 #include <llvm/ADT/StringSwitch.h>
 #include <map>
-#include "Costs.hpp"
+#include "Config.hpp"
 #include "WCAEvent.hpp"
 
 using namespace std;
@@ -26,7 +26,7 @@ WCAEvent::WCAEventKind WCAEvent::WCAEventIdToKind(const string &Id)
 
 Time WCAEvent::ScramblingCost() const
 {
-  return ScramblingCosts::get()[Id];
+  return Scrambling::get()[Id];
 }
 
 Expected<unique_ptr<WCAEvent>> WCAEvent::Create(WCAEventKind K)

@@ -1,5 +1,5 @@
 #include "GroupSimulator.hpp"
-#include "Costs.hpp"
+#include "Config.hpp"
 
 using namespace std;
 
@@ -8,7 +8,7 @@ namespace libsimu {
 JudgesRunSimulator::JudgesRunSimulator(WCAEvent &E, const vector<Time> &RefTimes) : GroupSimulator(E, RefTimes)
 {
 
-  Config &C = Config::get();
+  Setup &C = Setup::get();
 
   //for (unsigned int i = 0; i < C.Judges; i++) {
     //Judges.insert(Judge{0, 0});
@@ -55,8 +55,8 @@ void JudgesRunSimulator::ActOnScramblerReady(const SimuEvent &)
 
 void JudgesRunSimulator::ActOnRunnerInReady(const SimuEvent &)
 {
-  Config &C = Config::get();
-  ModelCosts &MC = ModelCosts::get();
+  Setup &C = Setup::get();
+  Model &MC = Model::get();
   if (!ScrambledCubes.empty()) {
     Cube *c = *ScrambledCubes.begin();
     ScrambledCubes.erase(ScrambledCubes.begin());

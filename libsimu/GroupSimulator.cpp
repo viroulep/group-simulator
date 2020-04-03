@@ -1,12 +1,17 @@
 #include <tuple>
+#include <iostream>
 
 #include "GroupSimulator.hpp"
-#include "Costs.hpp"
+#include "Config.hpp"
 
 using namespace std;
 
 namespace libsimu {
 
+bool Judge::operator<(const Judge &r) const
+{
+  return busyUntil < r.busyUntil;
+}
 
 GroupSimulator::GroupSimulator(WCAEvent &E, const std::vector<Time> &RefTimes) : E(E)
 {
@@ -15,7 +20,7 @@ GroupSimulator::GroupSimulator(WCAEvent &E, const std::vector<Time> &RefTimes) :
     PendingScramble.insert(C.get());
     ActiveCubes.insert(std::move(C));
   }
-  ModelCosts &MC = ModelCosts::get();
+  Model &MC = Model::get();
 
   // It doesn't matter if we add the shutdown time right now, and it's
   // inconvenient to hook when the group is done.
@@ -61,6 +66,7 @@ Time GroupSimulator::Run()
       break;
 #include "types.def"
       case SimuEvent::Unknown:
+        // FIXME: return error!
         cout << "WTF!\n";
     }
     DoneEvent(currentEvent);

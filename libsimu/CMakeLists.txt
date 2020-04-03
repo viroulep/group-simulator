@@ -1,7 +1,6 @@
 
 set(LIBSIMU_SOURCES
-  Actors.cpp
-  Costs.cpp
+  Config.cpp
   Cube.cpp
   Debug.cpp
   GroupSimulator.cpp

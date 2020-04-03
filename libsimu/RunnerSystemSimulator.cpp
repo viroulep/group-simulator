@@ -1,4 +1,4 @@
-#include "Costs.hpp"
+#include "Config.hpp"
 #include "GroupSimulator.hpp"
 
 using namespace std;
@@ -8,7 +8,7 @@ namespace libsimu {
 RunnerSystemSimulator::RunnerSystemSimulator(WCAEvent &E, const vector<Time> &RefTimes) : GroupSimulator(E, RefTimes)
 {
 
-  Config &C = Config::get();
+  Setup &C = Setup::get();
 
   for (unsigned int i = 0; i < C.Judges; i++) {
     Judges.insert(Judge{0, 0});
@@ -32,7 +32,7 @@ void RunnerSystemSimulator::ActOnCubeScrambled(const SimuEvent &e)
 void RunnerSystemSimulator::ActOnCubeSolved(const SimuEvent &e)
 {
   assert(e.c);
-  Config &C = Config::get();
+  Setup &C = Setup::get();
   e.c->AttemptsDone++;
   if (e.c->AttemptsDone == E.MaxAttempts ||
       (e.c->AttemptsDone == E.CutoffAttempts && e.c->SolvingTime >= C.Cutoff)) {
@@ -59,8 +59,8 @@ void RunnerSystemSimulator::ActOnScramblerReady(const SimuEvent &)
 
 void RunnerSystemSimulator::ActOnRunnerInReady(const SimuEvent &)
 {
-  ModelCosts &MC = ModelCosts::get();
-  Config &C = Config::get();
+  Model &MC = Model::get();
+  Setup &C = Setup::get();
   if (ScrambledCubes.empty()) {
     // Else try to run out a few seconds later
     if (!SolvedCubes.empty()) {
@@ -110,7 +110,7 @@ void RunnerSystemSimulator::ActOnRunnerInReady(const SimuEvent &)
 
 void RunnerSystemSimulator::ActOnRunnerOutReady(const SimuEvent &)
 {
-  Time ranOutTime = Walltime + ModelCosts::get().RunOut;
+  Time ranOutTime = Walltime + Model::get().RunOut;
   Events.insert(SimuEvent({SimuEvent::RunnerInReady, nullptr, ranOutTime}));
   // Assume a runner can run back any number of cubes!
   while (!SolvedCubes.empty()) {

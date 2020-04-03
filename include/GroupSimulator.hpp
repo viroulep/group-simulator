@@ -3,11 +3,18 @@
 
 #include <set>
 #include "libsimu.hpp"
-#include "Actors.hpp"
 #include "Cube.hpp"
 #include "WCAEvent.hpp"
 
 namespace libsimu {
+
+struct Judge {
+  Time busyUntil;
+  Time idleTime;
+
+  bool operator<(const Judge &r) const;
+  friend std::ostream &operator<<(std::ostream &out, const Judge &J);
+};
 
 struct SimuEvent {
   enum EventKind {

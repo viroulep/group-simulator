@@ -1,7 +1,6 @@
 #include "libsimu.hpp"
-#include "Costs.hpp"
+#include "Config.hpp"
 #include "Debug.hpp"
-#include "Actors.hpp"
 #include "Cube.hpp"
 #include "GroupSimulator.hpp"
 
@@ -10,9 +9,9 @@ using namespace std;
 namespace libsimu {
 
 void EmitConfig(ostream &out) {
-  out << ModelCosts::get();
-  out << ScramblingCosts::get();
-  out << Config::get();
+  out << Model::get();
+  out << Scrambling::get();
+  out << Setup::get();
 }
 
 ostream &operator<<(ostream &os, const set<std::unique_ptr<Cube>> &C)
@@ -25,9 +24,9 @@ ostream &operator<<(ostream &os, const set<std::unique_ptr<Cube>> &C)
   return os;
 }
 
-ostream &operator<<(ostream &out, const ModelCosts &MC)
+ostream &operator<<(ostream &out, const Model &MC)
 {
-  out << "CostsModel {\n";
+  out << "Model {\n";
   out << "  InitGroup: " << MC.InitGroup << "\n";
   out << "  RunIn: " << MC.RunIn << "\n";
   out << "  CompetitorReady: " << MC.CompetitorReady << "\n";
@@ -38,9 +37,9 @@ ostream &operator<<(ostream &out, const ModelCosts &MC)
   return out;
 }
 
-ostream &operator<<(ostream &out, const ScramblingCosts &SC)
+ostream &operator<<(ostream &out, const Scrambling &SC)
 {
-  out << "ScramblingCosts {\n";
+  out << "Scrambling {\n";
   for (auto &entry : SC) {
     out << string("  ") << entry.first().str() << ": " << entry.second << "\n";
   }
@@ -48,10 +47,10 @@ ostream &operator<<(ostream &out, const ScramblingCosts &SC)
   return out;
 }
 
-ostream &operator<<(ostream &out, const Config &C)
+ostream &operator<<(ostream &out, const Setup &C)
 {
   // zext the uint8_t so that it's not considered as a (non-printable) char.
-  out << "Config {\n";
+  out << "Setup {\n";
   out << "  CubesPerRunner: " << to_string(C.MaxCubes) << "\n";
   out << "  ExtraRate: " << to_string(C.ExtraRate) << "\n";
   out << "  MiscrambleRate: " << to_string(C.MiscrambleRate) << "\n";
