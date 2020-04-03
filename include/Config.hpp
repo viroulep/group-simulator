@@ -1,13 +1,18 @@
 #ifndef CONFIG_HPP
 #define CONFIG_HPP
 
+#include <iostream>
 #include <llvm/ObjectYAML/ObjectYAML.h>
 
 #include "libsimu.hpp"
 
 namespace libsimu {
 
-// Proxy class to (re)-fill J/R/S static data.
+// Proxy class to fill in the various data classes.
+struct Config {
+};
+
+// Setup configuration.
 // May contain more configuration later.
 struct Setup {
   static Setup &get();
@@ -87,6 +92,15 @@ struct llvm::yaml::MappingTraits<libsimu::Setup> {
     io.mapOptional("scramblers", C.Scramblers);
     io.mapOptional("time_limit", C.TimeLimit);
     io.mapOptional("cutoff", C.Cutoff);
+  }
+};
+
+template <>
+struct llvm::yaml::MappingTraits<libsimu::Config> {
+  static void mapping(IO &io, libsimu::Config &) {
+    io.mapRequired("setup", libsimu::Setup::get());
+    io.mapOptional("model", libsimu::Model::get());
+    io.mapOptional("scrambling", libsimu::Scrambling::get());
   }
 };
 

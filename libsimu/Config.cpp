@@ -28,31 +28,15 @@ namespace libsimu {
     return SC;
   }
 
-  template<typename T>
-  error_code LoadCosts(const string &Filename)
+  error_code LoadConfig(const string &Filename)
   {
     ErrorOr<unique_ptr<MemoryBuffer>> Buff = MemoryBuffer::getFile(Filename);
     if (!Buff) {
       return Buff.getError();
     }
     yaml::Input YIn(Buff.get()->getBuffer());
-    YIn >> T::get();
+    Config C;
+    YIn >> C;
     return YIn.error();
   }
-
-  error_code LoadModelCosts(const string &Filename)
-  {
-    return LoadCosts<Model>(Filename);
-  }
-
-  error_code LoadScramblingCost(const string &Filename)
-  {
-    return LoadCosts<Scrambling>(Filename);
-  }
-
-  error_code LoadConfig(const string &Filename)
-  {
-    return LoadCosts<Setup>(Filename);
-  }
-
 }

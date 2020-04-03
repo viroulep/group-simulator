@@ -12,12 +12,19 @@ const string DefaultSimulator = "Runners";
 error_code ReconfigureStaff(uint8_t Judges, uint8_t Scramblers,
     uint8_t Runners, uint8_t CubesPerRunner)
 {
-  // TODO check stuff
   Setup &C = Setup::get();
-  C.Judges = Judges;
-  C.Scramblers = Scramblers;
-  C.Runners = Runners;
-  C.MaxCubes = CubesPerRunner;
+  if (Judges) {
+    C.Judges = Judges;
+  }
+  if (Scramblers) {
+    C.Scramblers = Scramblers;
+  }
+  if (Runners) {
+    C.Runners = Runners;
+  }
+  if (CubesPerRunner) {
+    C.MaxCubes = CubesPerRunner;
+  }
   return error_code{};
 }
 

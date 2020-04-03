@@ -15,17 +15,15 @@ using namespace libsimu;
 static cl::opt<std::string> EventId(cl::Positional, cl::desc("<wca_event_id>"), cl::Required);
 
 // Options
-static cl::opt<std::string> CostsModelPath("mcosts", cl::desc("Specify path to model costs"), cl::value_desc("filename"));
-static cl::opt<std::string> ScramblingCostsPath("scosts", cl::desc("Specify path to scrambling costs"), cl::value_desc("filename"));
-static cl::opt<std::string> ConfigPath("config", cl::desc("Specify path to config"), cl::value_desc("filename"));
+static cl::opt<std::string> ConfigPath("config", cl::desc("Specify path to (maybe partial) config"), cl::value_desc("filename"));
 static cl::opt<std::string> Psychsheet("list", cl::desc("Specify path to the list of times"), cl::value_desc("filename"));
 
 static cl::opt<std::string> ModelId("m", cl::desc("Set the simulator to use (Runners, JudgesRun)"), cl::value_desc("model_id"), cl::init("Runners"));
 
-static cl::opt<unsigned> Judges("j", cl::desc("Overrides the number of judges"), cl::value_desc("judges"), cl::init(10));
-static cl::opt<unsigned> Scramblers("s", cl::desc("Overrides the number of scramblers"), cl::value_desc("scramblers"), cl::init(3));
-static cl::opt<unsigned> Runners("r", cl::desc("Overrides the number of runners"), cl::value_desc("runners"), cl::init(2));
-static cl::opt<unsigned> CubesPerRunner("r-cubes", cl::desc("Set the number of cubes per runner"), cl::value_desc("cubes"), cl::init(3));
+static cl::opt<unsigned> Judges("j", cl::desc("Overrides the number of judges"), cl::value_desc("judges"));
+static cl::opt<unsigned> Scramblers("s", cl::desc("Overrides the number of scramblers"), cl::value_desc("scramblers"));
+static cl::opt<unsigned> Runners("r", cl::desc("Overrides the number of runners"), cl::value_desc("runners"));
+static cl::opt<unsigned> CubesPerRunner("r-cubes", cl::desc("Set the number of cubes per runner"), cl::value_desc("cubes"));
 
 static cl::opt<unsigned> TimeLimit("tl", cl::desc("Set the time limit"), cl::value_desc("seconds"), cl::init(600));
 static cl::opt<unsigned> Cutoff("cut", cl::desc("Set the cutoff"), cl::value_desc("seconds"), cl::init(600));
@@ -41,18 +39,6 @@ static cl::opt<unsigned> MiscrambleRate("miscramble", cl::desc("Set the miscramb
 int main(int argc, char **argv) {
   cl::ParseCommandLineOptions(argc, argv);
 
-  if (CostsModelPath.length() > 0) {
-    if (auto err = LoadModelCosts(CostsModelPath)) {
-      errs() << "Error loading model cost\n";
-      return err.value();
-    }
-  }
-  if (ScramblingCostsPath.length() > 0) {
-    if (auto err = LoadScramblingCost(ScramblingCostsPath)) {
-      errs() << "Error loading scrambling cost\n";
-      return err.value();
-    }
-  }
   if (ConfigPath.length() > 0) {
     if (auto err = LoadConfig(ConfigPath)) {
       errs() << "Error loading config\n";
@@ -60,11 +46,15 @@ int main(int argc, char **argv) {
     }
   }
 
+
+
+  // Default values are 0, and since they are invalid values they are considered
+  // as not overriding the config.
   ReconfigureStaff(Judges, Scramblers, Runners, CubesPerRunner);
   ReconfigureRound(Cutoff, TimeLimit);
   ReconfigureStats(ExtraRate, MiscrambleRate);
 
-  //EmitConfig(std::cout);
+  EmitConfig(std::cout);
 
   std::vector<Time> Times(GroupSize, Avg);
 

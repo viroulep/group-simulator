@@ -17,8 +17,6 @@ struct OptResult {
   uint8_t Scramblers;
 };
 
-std::error_code LoadModelCosts(const std::string &Filename);
-std::error_code LoadScramblingCost(const std::string &Filename);
 std::error_code LoadConfig(const std::string &Filename);
 
 int TestStuff(int a);
