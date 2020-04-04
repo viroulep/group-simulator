@@ -6,6 +6,7 @@
 #include <iterator>
 
 #include "libsimu.hpp"
+#include "config_loader.hpp"
 
 using namespace llvm;
 using namespace std;
@@ -39,29 +40,33 @@ int main(int argc, char **argv) {
   cl::ParseCommandLineOptions(argc, argv);
 
   if (ConfigPath.length() > 0) {
-    if (auto err = LoadConfig(ConfigPath)) {
+    auto Res = programs::LoadConfig(ConfigPath);
+    if (Res.Err) {
       errs() << "Error loading config\n";
-      return err.value();
+      return Res.Err;
     }
+    LoadConfig(Res.C.Setup, Res.C.Model, Res.C.Scrambling);
   }
 
 
 
   // Default values are 0, and since they are invalid values they are considered
   // as not overriding the config.
-  ReconfigureStaff(as<JudgesParam>(Judges), as<ScramblersParam>(Scramblers), as<RunnersParam>(Runners));
+  ReconfigureStaff(Judges, Scramblers, Runners);
   ReconfigureRound(Cutoff, TimeLimit);
   ReconfigureStats(ExtraRate, MiscrambleRate);
 
-  EmitConfig(std::cout);
+  EmitConfig();
 
   std::vector<Time> Times(GroupSize, Avg);
 
-  Time Result;
+  TimeResult Result = SimuGroup(EventId, Times, ModelId);
+  if (Result.Err) {
+    cerr << "There was an error during the process :(\n";
+    return Result.Err;
+  }
 
-  SimuGroup(&Result, EventId, Times, ModelId);
-
-  chrono::seconds roundDuration(Result);
+  chrono::seconds roundDuration(Result.Value);
   chrono::minutes durationInMinute = chrono::duration_cast<chrono::minutes>(roundDuration);
   chrono::seconds remaining = roundDuration - durationInMinute;
   cout << "Group took " << durationInMinute.count() << " minutes and " << remaining.count() << " seconds.\n";

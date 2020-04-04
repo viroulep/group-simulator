@@ -1,0 +1,7 @@
+// Model's properties
+PROP(init_group, InitGroup);
+PROP(run_in, RunIn);
+PROP(competitor_ready, CompetitorReady);
+PROP(competitor_cleanup, CompetitorCleanup);
+PROP(run_out, RunOut);
+PROP(shutdown_group, ShutdownGroup);

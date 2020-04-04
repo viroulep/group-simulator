@@ -8,10 +8,10 @@ using namespace std;
 
 namespace libsimu {
 
-void EmitConfig(ostream &out) {
-  out << Model::get();
-  out << Scrambling::get();
-  out << Setup::get();
+void EmitConfig() {
+  cout << Model::get();
+  cout << Scrambling::get();
+  cout << Setup::get();
 }
 
 ostream &operator<<(ostream &os, const set<std::unique_ptr<Cube>> &C)
@@ -41,7 +41,7 @@ ostream &operator<<(ostream &out, const Scrambling &SC)
 {
   out << "Scrambling {\n";
   for (auto &entry : SC) {
-    out << string("  ") << entry.first().str() << ": " << entry.second << "\n";
+    out << string("  ") << entry.first << ": " << entry.second << "\n";
   }
   out << "}\n";
   return out;
@@ -132,9 +132,9 @@ ostream &operator<<(ostream &out, const WCAEvent &Ev)
 
 int TestStuff(int a)
 {
-  WCAEvent &e = WCAEvent::Get("333");
+  WCAEvent &e = WCAEvent::Get(WCAEvent::E_333);
   cout << "Addr for 333: " << &e << "\n";
-  WCAEvent &e2 = WCAEvent::Get("333");
+  WCAEvent &e2 = WCAEvent::Get(WCAEvent::E_333);
   cout << "Addr for 333: " << &e2 << "\n";
   return 2*a;
 }

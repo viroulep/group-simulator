@@ -1,0 +1,9 @@
+// Model's properties
+PROP(extra_rate, ExtraRate);
+PROP(cubes_per_runner, MaxCubes);
+PROP(miscramble_rate, MiscrambleRate);
+PROP(judges, Judges);
+PROP(runners, Runners);
+PROP(scramblers, Scramblers);
+PROP(time_limit, TimeLimit);
+PROP(cutoff, Cutoff);

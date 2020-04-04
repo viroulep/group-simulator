@@ -1,3 +1,6 @@
+#include <cassert>
+#include <algorithm>
+
 #include "Config.hpp"
 #include "GroupSimulator.hpp"
 

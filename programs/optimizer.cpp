@@ -6,6 +6,7 @@
 #include <iterator>
 
 #include "libsimu.hpp"
+#include "config_loader.hpp"
 
 using namespace llvm;
 using namespace std;
@@ -31,19 +32,23 @@ int main(int argc, char **argv) {
   cl::ParseCommandLineOptions(argc, argv);
 
   if (ConfigPath.length() > 0) {
-    if (auto err = LoadConfig(ConfigPath)) {
+    auto Res = programs::LoadConfig(ConfigPath);
+    if (Res.Err) {
       errs() << "Error loading config\n";
-      return err.value();
+      return Res.Err;
     }
+    LoadConfig(Res.C.Setup, Res.C.Model, Res.C.Scrambling);
   }
 
   //EmitConfig(std::cout);
 
   std::vector<Time> Times(GroupSize, Avg);
 
-  OptResult Result{0};
-
-  OptimizeStaff(&Result, EventId, Times, Judges, Staff, ModelId);
+  OptResult Result = OptimizeStaff(EventId, Times, Judges, Staff, ModelId);
+  if (Result.Err) {
+    cerr << "There was an error during the process :(\n";
+    return Result.Err;
+  }
 
   chrono::seconds roundDuration(Result.BestResult);
   chrono::minutes durationInMinute = chrono::duration_cast<chrono::minutes>(roundDuration);
