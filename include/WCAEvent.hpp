@@ -1,7 +1,6 @@
 #ifndef WCA_EVENTS_HPP
 #define WCA_EVENTS_HPP
 
-#include <llvm/Support/Error.h>
 #include <memory>
 #include "libsimu.hpp"
 
@@ -24,11 +23,10 @@ struct WCAEvent {
   const std::string Id;
   const std::string Name;
   static WCAEvent &Get(WCAEventKind K);
-  static WCAEvent &Get(const std::string &Id);
   static WCAEventKind WCAEventIdToKind(const std::string &Id);
   friend std::ostream &operator<<(std::ostream &out, const WCAEvent &Ev);
 private:
-  static llvm::Expected<std::unique_ptr<WCAEvent>> Create(WCAEventKind K);
+  static std::unique_ptr<WCAEvent> Create(WCAEventKind K);
   const WCAEventKind Kind;
 };
 

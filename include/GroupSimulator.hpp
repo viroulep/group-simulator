@@ -45,7 +45,7 @@ struct GroupSimulator {
 public:
   GroupSimulator(WCAEvent &E, const std::vector<Time> &RefTimes);
   virtual ~GroupSimulator() {};
-  Time Run();
+  TimeResult Run();
 #define SIMU_EVENT_TYPE(Name) \
   virtual void ActOn##Name(const SimuEvent &e) = 0;
 #include "types.def"

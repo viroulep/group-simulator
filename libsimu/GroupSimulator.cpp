@@ -1,5 +1,5 @@
-#include <tuple>
-#include <iostream>
+#include <algorithm>
+#include <cassert>
 
 #include "GroupSimulator.hpp"
 #include "Config.hpp"
@@ -44,13 +44,15 @@ unique_ptr<GroupSimulator> GroupSimulator::Create(const string &ModelId,
 bool GroupSimulator::ModelUsesRunners(const string &ModelId)
 {
   // Most likely having only a couple of simulator kind doesn't deserve genericity.
-  return llvm::StringSwitch<bool>(ModelId)
-    .Case("Runners", true)
-    .Case("JudgesRun", false)
-    .Default(false);
+  if (ModelId == "Runners") {
+    return true;
+  } else if (ModelId == "JudgesRun") {
+    return false;
+  }
+  return false;
 }
 
-Time GroupSimulator::Run()
+TimeResult GroupSimulator::Run()
 {
   while (!Done()) {
     //cout << *Simu;
@@ -67,11 +69,11 @@ Time GroupSimulator::Run()
 #include "types.def"
       case SimuEvent::Unknown:
         // FIXME: return error!
-        cout << "WTF!\n";
+        return {1, 0};
     }
     DoneEvent(currentEvent);
   }
-  return Walltime;
+  return {0, Walltime};
 }
 
 bool SimuEvent::operator<(const SimuEvent &r) const

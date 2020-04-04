@@ -1,10 +1,9 @@
 #ifndef CONFIG_HPP
 #define CONFIG_HPP
 
-#include <iostream>
-#include <llvm/ObjectYAML/ObjectYAML.h>
-
 #include "libsimu.hpp"
+
+#include <map>
 
 namespace libsimu {
 
@@ -29,6 +28,7 @@ struct Setup {
   // FIXME: move this to simuparams
   Time TimeLimit = MaxTimeLimit;
   Time Cutoff = 600;
+  ErrCodeTy loadMap(PropertiesMap const &Props);
   friend std::ostream &operator<<(std::ostream &out, const Setup &C);
 private:
   Setup() = default;
@@ -44,6 +44,7 @@ struct Model {
   // Or CubesPerJudge if no runner
   unsigned int CubesPerRunner = 1;
 
+  ErrCodeTy loadMap(PropertiesMap const &Props);
   friend std::ostream &operator<<(std::ostream &out, const Model &CM);
 
   static Model &get();
@@ -51,57 +52,14 @@ private:
   Model() = default;
 };
 
-struct Scrambling : public llvm::StringMap<Time> {
+struct Scrambling : public std::map<std::string, Time> {
   static Scrambling &get();
+  ErrCodeTy loadMap(PropertiesMap const &Props);
   friend std::ostream &operator<<(std::ostream &out, const Scrambling &CM);
 private:
   Scrambling();
 };
 
 }
-
-template <>
-struct llvm::yaml::MappingTraits<libsimu::Model> {
-  static void mapping(IO &io, libsimu::Model &model) {
-    io.mapOptional("init_group", model.InitGroup);
-    io.mapOptional("run_in", model.RunIn);
-    io.mapOptional("competitor_ready", model.CompetitorReady);
-    io.mapOptional("competitor_cleanup", model.CompetitorCleanup);
-    io.mapOptional("run_out", model.RunOut);
-    io.mapOptional("shutdown_group", model.ShutdownGroup);
-  }
-};
-
-template <>
-struct llvm::yaml::MappingTraits<libsimu::Scrambling> {
-  static void mapping(IO &io, libsimu::Scrambling &SC) {
-#define EVENT(Id, Name, MaxAttempts, CutoffAttempts, Rank, DefaultScramblingTime) \
-    io.mapOptional(#Id, SC[#Id]);
-#include "events.def"
-  }
-};
-
-template <>
-struct llvm::yaml::MappingTraits<libsimu::Setup> {
-  static void mapping(IO &io, libsimu::Setup &C) {
-    io.mapOptional("extra_rate", C.ExtraRate);
-    io.mapOptional("cubes_per_runner", C.MaxCubes);
-    io.mapOptional("miscramble_rate", C.MiscrambleRate);
-    io.mapOptional("judges", C.Judges);
-    io.mapOptional("runners", C.Runners);
-    io.mapOptional("scramblers", C.Scramblers);
-    io.mapOptional("time_limit", C.TimeLimit);
-    io.mapOptional("cutoff", C.Cutoff);
-  }
-};
-
-template <>
-struct llvm::yaml::MappingTraits<libsimu::Config> {
-  static void mapping(IO &io, libsimu::Config &) {
-    io.mapRequired("setup", libsimu::Setup::get());
-    io.mapOptional("model", libsimu::Model::get());
-    io.mapOptional("scrambling", libsimu::Scrambling::get());
-  }
-};
 
 #endif

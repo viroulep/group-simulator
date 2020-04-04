@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
   ReconfigureRound(Cutoff, TimeLimit);
   ReconfigureStats(ExtraRate, MiscrambleRate);
 
-  EmitConfig(std::cout);
+  EmitConfig();
 
   std::vector<Time> Times(GroupSize, Avg);
 

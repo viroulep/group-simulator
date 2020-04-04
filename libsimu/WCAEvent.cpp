@@ -1,10 +1,9 @@
-#include <llvm/ADT/StringSwitch.h>
 #include <map>
+#include <cassert>
 #include "Config.hpp"
 #include "WCAEvent.hpp"
 
 using namespace std;
-using namespace llvm;
 
 namespace libsimu {
 
@@ -15,13 +14,16 @@ namespace {
 WCAEvent::WCAEvent(WCAEventKind K, string &&Id, string &&Name, uint8_t Max, uint8_t Cutoff, uint8_t Rank) :
   MaxAttempts(Max), CutoffAttempts(Cutoff), Rank(Rank), Id(Id), Name(Name), Kind(K) {}
 
-WCAEvent::WCAEventKind WCAEvent::WCAEventIdToKind(const string &Id)
+WCAEvent::WCAEventKind WCAEvent::WCAEventIdToKind(const string &EventId)
 {
-  return StringSwitch<WCAEventKind>(Id)
 #define EVENT(Id, Name, MaxAttempts, CutoffAttempts, Rank, DefaultScramblingTime) \
-    .Case(#Id, E_##Id)
+  if (EventId == #Id) {\
+    return E_##Id;\
+  } else
 #include "events.def"
-    .Default(E_Unknown);
+  {
+    return E_Unknown;
+  }
 }
 
 Time WCAEvent::ScramblingCost() const
@@ -29,8 +31,9 @@ Time WCAEvent::ScramblingCost() const
   return Scrambling::get()[Id];
 }
 
-Expected<unique_ptr<WCAEvent>> WCAEvent::Create(WCAEventKind K)
+unique_ptr<WCAEvent> WCAEvent::Create(WCAEventKind K)
 {
+  assert(K != E_Unknown);
   switch (K) {
 #define EVENT(Id, Name, MaxAttempts, CutoffAttempts, Rank, DefaultScramblingTime) \
     case E_##Id: \
@@ -39,19 +42,14 @@ Expected<unique_ptr<WCAEvent>> WCAEvent::Create(WCAEventKind K)
     case E_Unknown:
       break;
   }
-
-  return make_error<StringError>("Unknown WCA Event", make_error_code(errc::invalid_argument));
-}
-
-WCAEvent &WCAEvent::Get(const std::string &Id)
-{
-  return Get(WCAEventIdToKind(Id));
+  return nullptr;
 }
 
 WCAEvent &WCAEvent::Get(WCAEventKind K)
 {
+  assert(K != E_Unknown);
   if (!WCAEventMap[K])
-    WCAEventMap[K] = ExitOnError{}(Create(K));
+    WCAEventMap[K] = Create(K);
   return *WCAEventMap[K].get();
 }
 

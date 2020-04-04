@@ -11,4 +11,3 @@ set(LIBSIMU_SOURCES
   )
 
 add_library(libsimu ${LIBSIMU_SOURCES})
-llvm_config(libsimu Support)

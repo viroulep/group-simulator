@@ -9,42 +9,47 @@ namespace libsimu {
 
 const string DefaultSimulator = "Runners";
 
-error_code ReconfigureStaff(JudgesParam J, ScramblersParam S,
-    RunnersParam R)
+ErrCodeTy ReconfigureStaff(uint8_t Judges, uint8_t Scramblers,
+    uint8_t Runners)
 {
   Setup &C = Setup::get();
-  if (auto j = as_integer(J)) {
-    C.Judges = j;
+  if (Judges) {
+    C.Judges = Judges;
   }
-  if (auto s = as_integer(S)) {
-    C.Scramblers = s;
+  if (Scramblers) {
+    C.Scramblers = Scramblers;
   }
-  if (auto r = as_integer(R)) {
-    C.Runners = r;
+  if (Runners) {
+    C.Runners = Runners;
   }
-  return error_code{};
+  return 0;
 }
 
-error_code ReconfigureRound(Time Cutoff, Time TimeLimit /*= 600 */)
+ErrCodeTy ReconfigureRound(Time Cutoff, Time TimeLimit /*= 600 */)
 {
   Setup &C = Setup::get();
   C.Cutoff = Cutoff;
   C.TimeLimit = TimeLimit;
-  return error_code{};
+  return 0;
 }
 
-error_code ReconfigureStats(uint8_t ExtraRate, uint8_t MiscrambleRate)
+ErrCodeTy ReconfigureStats(uint8_t ExtraRate, uint8_t MiscrambleRate)
 {
   Setup &C = Setup::get();
   C.ExtraRate = ExtraRate;
   C.MiscrambleRate = MiscrambleRate;
-  return error_code{};
+  return 0;
 }
 
-error_code SimuGroup(Time *Result, const string &EventId, const vector<Time> &Times,
+TimeResult SimuGroup(const string &EventId, const vector<Time> &Times,
     const std::string &ModelId /*= DefaultSimulator */)
 {
-  WCAEvent &Ev = WCAEvent::Get(EventId);
+  WCAEvent::WCAEventKind K = WCAEvent::WCAEventIdToKind(EventId);
+  if (K == WCAEvent::E_Unknown) {
+    return { 1, 0 };
+  }
+
+  WCAEvent &Ev = WCAEvent::Get(K);
   unique_ptr<GroupSimulator> Simu = GroupSimulator::Create(ModelId, Ev, Times);
   // FIXME: emit config
   // FIXME: do this only if debug
@@ -55,16 +60,19 @@ error_code SimuGroup(Time *Result, const string &EventId, const vector<Time> &Ti
   cout << "}\n";
 
   // event loop
-  *Result = Simu->Run();
-
-  return error_code{};
+  return Simu->Run();
 }
 
-error_code OptimizeStaff(OptResult *Res, const string &EventId,
+OptResult OptimizeStaff(const string &EventId,
   const vector<Time> &Times, uint8_t MaxJudges, uint8_t TotalStaff,
   const string &ModelId /* = DefaultSimulator */)
 {
-  WCAEvent &Ev = WCAEvent::Get(EventId);
+  WCAEvent::WCAEventKind K = WCAEvent::WCAEventIdToKind(EventId);
+  if (K == WCAEvent::E_Unknown) {
+    return { 1, 0 };
+  }
+
+  WCAEvent &Ev = WCAEvent::Get(K);
   static constexpr uint8_t MinScramblers = 1;
   uint8_t MinRunners = 0;
   // FIXME: ugly
@@ -76,32 +84,36 @@ error_code OptimizeStaff(OptResult *Res, const string &EventId,
   if (MaxJudges > TotalStaff - MinScramblers - MinRunners) {
     cerr << "MaxJudges needs to leave space for scramblers and runners\n";
   }
+  OptResult Res = { 0 };
 
-  Res->BestResult = std::numeric_limits<decltype(OptResult::BestResult)>::max();
-  Res->Scramblers = std::numeric_limits<decltype(OptResult::Scramblers)>::max();
+  Res.BestResult = std::numeric_limits<decltype(OptResult::BestResult)>::max();
+  Res.Scramblers = std::numeric_limits<decltype(OptResult::Scramblers)>::max();
 
   for (uint8_t J = MinJudges; J <= MaxJudges; J++) {
     uint8_t RemainingStaff = TotalStaff - J;
     for (uint8_t S = MinScramblers; S <= RemainingStaff - MinRunners; S++) {
       uint8_t R = RemainingStaff - S;
-      ReconfigureStaff(JudgesParam{J}, ScramblersParam{S}, RunnersParam{R});
+      ReconfigureStaff(J, S, R);
       unique_ptr<GroupSimulator> Simu = GroupSimulator::Create(ModelId, Ev, Times);
       if (!GroupSimulator::ModelUsesRunners(ModelId)) {
         R = 0;
       }
-      Time Duration = Simu->Run();
+      TimeResult ResultForConfig = Simu->Run();
+      if (ResultForConfig.Err) {
+        return { ResultForConfig.Err, 0 };
+      }
+      Time Duration = ResultForConfig.Value;
       // Update the minimum if needed, for identical times, less scramblers wins
-      if (tie(Duration, S) < tie(Res->BestResult, Res->Scramblers)) {
-        Res->BestResult = Duration;
-        Res->Judges = J;
-        Res->Scramblers = S;
-        Res->Runners = R;
+      if (tie(Duration, S) < tie(Res.BestResult, Res.Scramblers)) {
+        Res.BestResult = Duration;
+        Res.Judges = J;
+        Res.Scramblers = S;
+        Res.Runners = R;
       }
     }
   }
 
-
-  return error_code{};
+  return Res;
 }
 
 }
