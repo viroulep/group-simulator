@@ -1,0 +1,19 @@
+{
+  "name": "@viroulep/group-simulator",
+  "version": "1.0.0-beta.0",
+  "description": "Experimental group simulator for WCA competitions",
+  "main": "dist/group-simulator-pack.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/viroulep/group-simulator.git"
+  },
+  "author": "Philippe Virouleau <philippe.44@gmail.com>",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/viroulep/group-simulator/issues"
+  },
+  "homepage": "https://github.com/viroulep/group-simulator#readme"
+}
