@@ -1,9 +1,9 @@
 {
   "name": "@viroulep/group-simulator",
-  "version": "1.0.0-beta.0",
+  "version": "1.0.0-beta.1",
   "description": "Experimental group simulator for WCA competitions",
   "main": "dist/group-simulator-pack.js",
-  "files": "dist/*",
+  "files": ["dist/"],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
