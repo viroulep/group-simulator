@@ -40,29 +40,30 @@ int main(int argc, char **argv) {
   cl::ParseCommandLineOptions(argc, argv);
 
   if (ConfigPath.length() > 0) {
-    auto Res = programs::LoadConfig(ConfigPath);
+    auto Res = programs::loadConfig(ConfigPath);
     if (Res.Err) {
-      errs() << "Error loading config\n";
+      cerr << errors::errorMessage(Res.Err) << "\n";
       return Res.Err;
     }
-    LoadConfig(Res.C.Setup, Res.C.Model, Res.C.Scrambling);
+    loadConfig(Res.C.Setup, Res.C.Model, Res.C.Scrambling);
   }
 
 
 
   // Default values are 0, and since they are invalid values they are considered
   // as not overriding the config.
-  ReconfigureStaff(Judges, Scramblers, Runners);
-  ReconfigureRound(Cutoff, TimeLimit);
-  ReconfigureStats(ExtraRate, MiscrambleRate);
+  reconfigureStaff(Judges, Scramblers, Runners);
+  reconfigureRound(Cutoff, TimeLimit);
+  reconfigureStats(ExtraRate, MiscrambleRate);
 
-  EmitConfig();
+  emitConfig();
 
   std::vector<Time> Times(GroupSize, Avg);
 
-  TimeResult Result = SimuGroup(EventId, Times, ModelId);
+  TimeResult Result = simuGroup(EventId, Times, ModelId);
   if (Result.Err) {
-    cerr << "There was an error during the process :(\n";
+    cerr << "There was an error during the process, see below :(\n";
+    cerr << errors::errorMessage(Result.Err) << "\n";
     return Result.Err;
   }
 

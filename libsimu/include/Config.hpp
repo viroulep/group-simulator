@@ -7,9 +7,7 @@
 
 namespace libsimu {
 
-// Proxy class to fill in the various data classes.
-struct Config {
-};
+// FIXME: factorize the map load/serialization?
 
 // Setup configuration.
 // May contain more configuration later.
@@ -29,6 +27,7 @@ struct Setup {
   Time TimeLimit = MaxTimeLimit;
   Time Cutoff = 600;
   ErrCodeTy loadMap(PropertiesMap const &Props);
+  PropertiesMap asMap() const;
   friend std::ostream &operator<<(std::ostream &out, const Setup &C);
 private:
   Setup() = default;
@@ -45,6 +44,7 @@ struct Model {
   unsigned int CubesPerRunner = 1;
 
   ErrCodeTy loadMap(PropertiesMap const &Props);
+  PropertiesMap asMap() const;
   friend std::ostream &operator<<(std::ostream &out, const Model &CM);
 
   static Model &get();

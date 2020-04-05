@@ -31,14 +31,14 @@ namespace libsimu {
     if (Props.count(#EntryName))\
       MemberName = Props.at(#EntryName);
   ErrCodeTy Model::loadMap(PropertiesMap const &Props) {
-    ErrCodeTy Ret = 0;
+    ErrCodeTy Ret(errors::SUCCESS);
     // FIXME: build a diff between Props keys and allowed ones to emit error.
 #include "model_props.def"
     return Ret;
   }
 
   ErrCodeTy Setup::loadMap(PropertiesMap const &Props) {
-    ErrCodeTy Ret = 0;
+    ErrCodeTy Ret(errors::SUCCESS);
     // FIXME: build a diff between Props keys and allowed ones to emit error.
 #include "setup_props.def"
     return Ret;
@@ -46,7 +46,7 @@ namespace libsimu {
 #undef PROP
 
   ErrCodeTy Scrambling::loadMap(PropertiesMap const &Props) {
-    ErrCodeTy Ret = 0;
+    ErrCodeTy Ret(errors::SUCCESS);
     string id;
     // FIXME: build a diff between Props keys and allowed ones to emit error.
 #define EVENT(Id, Name, MaxAttempts, CutoffAttempts, Rank, DefaultScramblingTime)\
@@ -57,28 +57,45 @@ namespace libsimu {
     return Ret;
   }
 
-  ErrCodeTy LoadConfig(PropertiesMap const &Setup, PropertiesMap const &Model,
+  ErrCodeTy loadConfig(PropertiesMap const &Setup, PropertiesMap const &Model,
     PropertiesMap const &Scrambling)
   {
     if (Setup::get().loadMap(Setup)) {
-      return 1;
+      return errors::INVALID_CONFIG;
     }
     if (Model::get().loadMap(Model)) {
-      return 1;
+      return errors::INVALID_CONFIG;
     }
     if (Scrambling::get().loadMap(Scrambling)) {
-      return 1;
+      return errors::INVALID_CONFIG;
     }
-    return 0;
-#if 0
-    ErrorOr<unique_ptr<MemoryBuffer>> Buff = MemoryBuffer::getFile(Filename);
-    if (!Buff) {
-      return Buff.getError();
-    }
-    yaml::Input YIn(Buff.get()->getBuffer());
-    Config C;
-    YIn >> C;
-    return YIn.error();
-#endif
+    return errors::SUCCESS;
+  }
+
+#define PROP(EntryName, MemberName)\
+  Props[#EntryName] = MemberName;
+  PropertiesMap Model::asMap() const {
+    PropertiesMap Props;
+#include "model_props.def"
+    return Props;
+  }
+
+  PropertiesMap Setup::asMap() const {
+    PropertiesMap Props;
+#include "setup_props.def"
+    return Props;
+  }
+#undef PROP
+
+  PropertiesMap getModelProps() {
+    return Model::get().asMap();
+  }
+
+  PropertiesMap getSetupProps() {
+    return Setup::get().asMap();
+  }
+
+  PropertiesMap getScramblingProps() {
+    return Scrambling::get();
   }
 }

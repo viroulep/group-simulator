@@ -32,21 +32,22 @@ int main(int argc, char **argv) {
   cl::ParseCommandLineOptions(argc, argv);
 
   if (ConfigPath.length() > 0) {
-    auto Res = programs::LoadConfig(ConfigPath);
+    auto Res = programs::loadConfig(ConfigPath);
     if (Res.Err) {
       errs() << "Error loading config\n";
       return Res.Err;
     }
-    LoadConfig(Res.C.Setup, Res.C.Model, Res.C.Scrambling);
+    loadConfig(Res.C.Setup, Res.C.Model, Res.C.Scrambling);
   }
 
-  //EmitConfig(std::cout);
+  emitConfig();
 
   std::vector<Time> Times(GroupSize, Avg);
 
-  OptResult Result = OptimizeStaff(EventId, Times, Judges, Staff, ModelId);
+  OptResult Result = optimizeStaff(EventId, Times, Judges, Staff, ModelId);
   if (Result.Err) {
-    cerr << "There was an error during the process :(\n";
+    cerr << "There was an error during the process, see below :(\n";
+    cerr << errors::errorMessage(Result.Err) << "\n";
     return Result.Err;
   }
 

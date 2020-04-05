@@ -6,11 +6,33 @@
 
 using namespace std;
 namespace libsimu {
+namespace errors {
+
+string errorMessage(ErrorKind K)
+{
+  switch (K) {
+    case SUCCESS:
+      return "Operation completed successfully";
+    case GENERIC:
+      return "There was an error processing your request";
+    case SIMULATION_FAILURE:
+      return "The simulation failed";
+    case INVALID_EVENT:
+      return "Invalid event supplied";
+    case INVALID_CONFIG:
+      return "Invalid configuration supplied";
+    case INVALID_FILE:
+      return "Invalid file supplied";
+  }
+  return "Unknown";
+}
+
+} // errors
 
 const string DefaultSimulator = "Runners";
 
-ErrCodeTy ReconfigureStaff(uint8_t Judges, uint8_t Scramblers,
-    uint8_t Runners)
+ErrCodeTy reconfigureStaff(unsigned Judges, unsigned Scramblers,
+    unsigned Runners)
 {
   Setup &C = Setup::get();
   if (Judges) {
@@ -22,31 +44,31 @@ ErrCodeTy ReconfigureStaff(uint8_t Judges, uint8_t Scramblers,
   if (Runners) {
     C.Runners = Runners;
   }
-  return 0;
+  return errors::SUCCESS;
 }
 
-ErrCodeTy ReconfigureRound(Time Cutoff, Time TimeLimit /*= 600 */)
+ErrCodeTy reconfigureRound(Time Cutoff, Time TimeLimit /*= 600 */)
 {
   Setup &C = Setup::get();
   C.Cutoff = Cutoff;
   C.TimeLimit = TimeLimit;
-  return 0;
+  return errors::SUCCESS;
 }
 
-ErrCodeTy ReconfigureStats(uint8_t ExtraRate, uint8_t MiscrambleRate)
+ErrCodeTy reconfigureStats(unsigned ExtraRate, unsigned MiscrambleRate)
 {
   Setup &C = Setup::get();
   C.ExtraRate = ExtraRate;
   C.MiscrambleRate = MiscrambleRate;
-  return 0;
+  return errors::SUCCESS;
 }
 
-TimeResult SimuGroup(const string &EventId, const vector<Time> &Times,
+TimeResult simuGroup(const string &EventId, const TimeVector &Times,
     const std::string &ModelId /*= DefaultSimulator */)
 {
   WCAEvent::WCAEventKind K = WCAEvent::WCAEventIdToKind(EventId);
   if (K == WCAEvent::E_Unknown) {
-    return { 1, 0 };
+    return { errors::INVALID_EVENT, 0 };
   }
 
   WCAEvent &Ev = WCAEvent::Get(K);
@@ -63,37 +85,37 @@ TimeResult SimuGroup(const string &EventId, const vector<Time> &Times,
   return Simu->Run();
 }
 
-OptResult OptimizeStaff(const string &EventId,
-  const vector<Time> &Times, uint8_t MaxJudges, uint8_t TotalStaff,
+OptResult optimizeStaff(const string &EventId,
+  const TimeVector &Times, unsigned MaxJudges, unsigned TotalStaff,
   const string &ModelId /* = DefaultSimulator */)
 {
   WCAEvent::WCAEventKind K = WCAEvent::WCAEventIdToKind(EventId);
   if (K == WCAEvent::E_Unknown) {
-    return { 1, 0 };
+    return { errors::INVALID_EVENT, 0 };
   }
 
   WCAEvent &Ev = WCAEvent::Get(K);
-  static constexpr uint8_t MinScramblers = 1;
-  uint8_t MinRunners = 0;
+  static constexpr unsigned MinScramblers = 1;
+  unsigned MinRunners = 0;
   // FIXME: ugly
   if (GroupSimulator::ModelUsesRunners(ModelId))
     MinRunners = 1;
 
-  uint8_t MinJudges = MaxJudges / 2;
+  unsigned MinJudges = MaxJudges / 2;
 
   if (MaxJudges > TotalStaff - MinScramblers - MinRunners) {
     cerr << "MaxJudges needs to leave space for scramblers and runners\n";
   }
-  OptResult Res = { 0 };
+  OptResult Res = { errors::SUCCESS };
 
   Res.BestResult = std::numeric_limits<decltype(OptResult::BestResult)>::max();
   Res.Scramblers = std::numeric_limits<decltype(OptResult::Scramblers)>::max();
 
-  for (uint8_t J = MinJudges; J <= MaxJudges; J++) {
-    uint8_t RemainingStaff = TotalStaff - J;
-    for (uint8_t S = MinScramblers; S <= RemainingStaff - MinRunners; S++) {
-      uint8_t R = RemainingStaff - S;
-      ReconfigureStaff(J, S, R);
+  for (unsigned J = MinJudges; J <= MaxJudges; J++) {
+    unsigned RemainingStaff = TotalStaff - J;
+    for (unsigned S = MinScramblers; S <= RemainingStaff - MinRunners; S++) {
+      unsigned R = RemainingStaff - S;
+      reconfigureStaff(J, S, R);
       unique_ptr<GroupSimulator> Simu = GroupSimulator::Create(ModelId, Ev, Times);
       if (!GroupSimulator::ModelUsesRunners(ModelId)) {
         R = 0;

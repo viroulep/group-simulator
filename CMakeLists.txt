@@ -13,7 +13,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 option(COMPILE_WASM "Compile the WASM wrapper (if enabled, won't compile the library but just the WASM wrapper." [OFF])
 
-add_compile_options(-fno-rtti -Wall -Wno-class-memaccess -fno-exceptions)
+# TODO: restore -fno-rtti et ajouter l'option dans em++
+add_compile_options(-Wall -fno-exceptions)
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 # Let's completely override CMake's default
@@ -23,7 +24,6 @@ set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-Wl,--gc-sections")
 add_subdirectory(libsimu)
 if(COMPILE_WASM)
   # TODO: check called with emcmake!
-  # TODO: find(libsimu.a)
   # TODO: find(em++)
   add_subdirectory(wasm)
 else()

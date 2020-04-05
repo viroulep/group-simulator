@@ -8,7 +8,7 @@ using namespace std;
 
 namespace libsimu {
 
-void EmitConfig() {
+void emitConfig() {
   cout << Model::get();
   cout << Scrambling::get();
   cout << Setup::get();
@@ -130,13 +130,13 @@ ostream &operator<<(ostream &out, const WCAEvent &Ev)
   return out;
 }
 
-int TestStuff(int a)
+ErrCodeTy TestStuff(int a)
 {
   WCAEvent &e = WCAEvent::Get(WCAEvent::E_333);
   cout << "Addr for 333: " << &e << "\n";
   WCAEvent &e2 = WCAEvent::Get(WCAEvent::E_333);
   cout << "Addr for 333: " << &e2 << "\n";
-  return 2*a;
+  return errors::SUCCESS;
 }
 
 }

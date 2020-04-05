@@ -6,20 +6,35 @@
 #include <map>
 
 namespace libsimu {
+namespace errors {
+  enum ErrorKind {
+    SUCCESS = 0,
+    GENERIC,
+    SIMULATION_FAILURE,
+    INVALID_EVENT,
+    INVALID_CONFIG,
+    INVALID_FILE,
+  };
 
-using Time = uint64_t;
-using ErrCodeTy = int;
-using PropertiesMap = std::map<std::string, std::uint64_t>;
-// TODO: define error codes/string
+  std::string errorMessage(ErrorKind K);
+}
+
+// Because it is used for a Wasm target, this header must use only basic types.
+// (and std map/vector)
+
+using Time = unsigned long;
+using ErrCodeTy = errors::ErrorKind;
+using PropertiesMap = std::map<std::string, unsigned long>;
+using TimeVector = std::vector<Time>;
 
 extern const std::string DefaultSimulator;
 
 struct OptResult {
   ErrCodeTy Err;
   Time BestResult;
-  uint8_t Judges;
-  uint8_t Runners;
-  uint8_t Scramblers;
+  unsigned Judges;
+  unsigned Runners;
+  unsigned Scramblers;
 };
 
 struct TimeResult {
@@ -27,30 +42,31 @@ struct TimeResult {
   Time Value;
 };
 
-ErrCodeTy LoadConfig(PropertiesMap const &Setup, PropertiesMap const &Model,
+ErrCodeTy loadConfig(PropertiesMap const &Setup, PropertiesMap const &Model,
     PropertiesMap const &Scrambling);
 
-ErrCodeTy TestStuff(int a);
-void EmitConfig();
+PropertiesMap getSetupProps();
+PropertiesMap getModelProps();
+PropertiesMap getScramblingProps();
 
 // Depending on the model used, 'Runners' may be unused!
-ErrCodeTy ReconfigureStaff(uint8_t Judges, uint8_t Scramblers, uint8_t Runners);
+ErrCodeTy reconfigureStaff(unsigned Judges, unsigned Scramblers, unsigned Runners);
 
 // By default both cutoff and time limit is 600 (a cutoff of 600 is equivalent to
 // no cutoff in the context of this program).
-ErrCodeTy ReconfigureRound(Time Cutoff, Time TimeLimit = 600);
+ErrCodeTy reconfigureRound(Time Cutoff, Time TimeLimit = 600);
 
 // Experimental stuff
-ErrCodeTy ReconfigureStats(uint8_t ExtraRate, uint8_t MiscrambleRate);
+ErrCodeTy reconfigureStats(unsigned ExtraRate, unsigned MiscrambleRate);
 
 // Entry point with a user specificed group of times
-TimeResult SimuGroup(const std::string &EventId,
-  const std::vector<Time> &Times, const std::string &ModelId = DefaultSimulator);
+TimeResult simuGroup(const std::string &EventId,
+  const TimeVector &Times, const std::string &ModelId = DefaultSimulator);
 
 // For a given amount of staff, explore all the (judge, scramblers, runners) to
 // find the shortest combination.
-OptResult OptimizeStaff(const std::string &EventId,
-  const std::vector<Time> &Times, uint8_t MaxJudges, uint8_t TotalStaff,
+OptResult optimizeStaff(const std::string &EventId,
+  const TimeVector &Times, unsigned MaxJudges, unsigned TotalStaff,
   const std::string &ModelId = DefaultSimulator);
 
 }

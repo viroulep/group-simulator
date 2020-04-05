@@ -34,5 +34,6 @@ simu
 
 # stuff
 build
+build-wasm
 Session.vim
 compile_commands.json

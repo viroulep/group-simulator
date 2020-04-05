@@ -24,8 +24,13 @@ struct ConfigRet {
   Config C;
 };
 
-ConfigRet LoadConfig(const std::string &Filename);
+ConfigRet loadConfig(const std::string &Filename);
 
+}
+
+namespace libsimu {
+  // Defined in libsimu
+  void emitConfig();
 }
 
 #define PROP(EntryName, ModelName)\

@@ -5,16 +5,16 @@ using namespace llvm;
 
 namespace libsimu::programs {
 
-ConfigRet LoadConfig(const string &Filename) {
+ConfigRet loadConfig(const string &Filename) {
 
   ErrorOr<unique_ptr<MemoryBuffer>> Buff = MemoryBuffer::getFile(Filename);
   if (!Buff) {
-    return {Buff.getError().value(), {}};
+    return {errors::INVALID_FILE, {}};
   }
   yaml::Input YIn(Buff.get()->getBuffer());
   ConfigRet CR;
   YIn >> CR.C;
-  CR.Err = YIn.error().value();
+  CR.Err = YIn.error() ? errors::INVALID_CONFIG : errors::SUCCESS;
   return CR;
 }
 

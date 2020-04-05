@@ -7,7 +7,7 @@ list(APPEND CMAKE_MODULE_PATH "${LLVM_CMAKE_DIR}")
 include(AddLLVM)
 
 # LLVM 7 headers have an annoying class-memaccess warning
-add_compile_options(-Wno-class-memaccess)
+add_compile_options(-Wno-class-memaccess -fno-rtti)
 
 include_directories(${LLVM_INCLUDE_DIRS})
 

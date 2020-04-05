@@ -68,12 +68,11 @@ TimeResult GroupSimulator::Run()
       break;
 #include "types.def"
       case SimuEvent::Unknown:
-        // FIXME: return error!
-        return {1, 0};
+        return {errors::SIMULATION_FAILURE, 0};
     }
     DoneEvent(currentEvent);
   }
-  return {0, Walltime};
+  return {errors::SUCCESS, Walltime};
 }
 
 bool SimuEvent::operator<(const SimuEvent &r) const
