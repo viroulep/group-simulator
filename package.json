@@ -3,6 +3,7 @@
   "version": "1.0.0-beta.0",
   "description": "Experimental group simulator for WCA competitions",
   "main": "dist/group-simulator-pack.js",
+  "files": "dist/*",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
