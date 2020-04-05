@@ -8,6 +8,7 @@ include(AddLLVM)
 
 # LLVM 7 headers have an annoying class-memaccess warning
 add_compile_options(-Wno-class-memaccess -fno-rtti)
+set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-Wl,--gc-sections")
 
 include_directories(${LLVM_INCLUDE_DIRS})
 

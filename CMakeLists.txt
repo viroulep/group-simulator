@@ -11,21 +11,20 @@ include(BuildType)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-option(COMPILE_WASM "Compile the WASM wrapper (if enabled, won't compile the library but just the WASM wrapper." [OFF])
-
-# TODO: restore -fno-rtti et ajouter l'option dans em++
 add_compile_options(-Wall -fno-exceptions)
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 # Let's completely override CMake's default
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
-set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-Wl,--gc-sections")
 
 add_subdirectory(libsimu)
-if(COMPILE_WASM)
-  # TODO: check called with emcmake!
-  # TODO: find(em++)
+
+# When running emcmake cmake, this variable is set to 1 :)
+
+if(EMSCRIPTEN)
+  message(STATUS "Emscripten detected, configuring to target Wasm.")
   add_subdirectory(wasm)
 else()
+  message(STATUS "Building regular programs")
   add_subdirectory(programs)
 endif()

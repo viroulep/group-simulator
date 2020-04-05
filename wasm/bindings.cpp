@@ -35,9 +35,9 @@ EMSCRIPTEN_BINDINGS(my_module) {
     .field("Scramblers", &OptResult::Scramblers)
     ;
   function("loadConfig", &loadConfig);
-  function("getSetupParams", &getSetupProps);
-  function("getModelParams", &getModelProps);
-  function("getScramblingParams", &getScramblingProps);
+  function("getSetupProps", &getSetupProps);
+  function("getModelProps", &getModelProps);
+  function("getScramblingProps", &getScramblingProps);
   function("reconfigureStaff", &reconfigureStaff);
   function("reconfigureRound", &reconfigureRound);
   function("reconfigureStats", &reconfigureStats);
