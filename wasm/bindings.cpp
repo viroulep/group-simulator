@@ -22,6 +22,8 @@ EMSCRIPTEN_BINDINGS(my_module) {
   function("errorMessage", &errors::errorMessage);
   register_map<std::string, unsigned long>("MapStringInt");
   register_vector<Time>("VectorTime");
+  // Because for map.keys()
+  register_vector<std::string>("VectorString");
   constant("DEFAULT_MODEL", DefaultSimulator);
   value_object<TimeResult>("TimeResult")
     .field("Err", &TimeResult::Err)
