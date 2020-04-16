@@ -55,11 +55,11 @@ bool GroupSimulator::ModelUsesRunners(const string &ModelId)
 TimeResult GroupSimulator::Run()
 {
   while (!Done()) {
-    //cout << *Simu;
-    //simu->printState();
     SimuEvent currentEvent = NextEvent();
-    if (currentEvent.c) {
-      assert(currentEvent.c->AttemptsDone >= 0 && currentEvent.c->AttemptsDone < 5);
+    if (currentEvent.c
+        && (currentEvent.c->AttemptsDone < 0
+            || currentEvent.c->AttemptsDone >= 5)) {
+      return {errors::SIMULATION_FAILURE, 0};
     }
     switch (currentEvent.Kind) {
 #define SIMU_EVENT_TYPE(Name)            \
@@ -93,11 +93,10 @@ string SimuEvent::getEventTypeName(EventKind K)
   return "Unknown";
 }
 
-
 SimuEvent GroupSimulator::NextEvent()
 {
   assert(!Events.empty());
-  const SimuEvent &SE = *Events.begin();
+  SimuEvent SE = std::move(*Events.begin());
   assert(SE.T >= Walltime);
   Walltime = SE.T;
   Events.erase(Events.begin());

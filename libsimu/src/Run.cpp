@@ -73,13 +73,6 @@ TimeResult simuGroup(const string &EventId, const TimeVector &Times,
 
   WCAEvent &Ev = WCAEvent::Get(K);
   unique_ptr<GroupSimulator> Simu = GroupSimulator::Create(ModelId, Ev, Times);
-  // FIXME: emit config
-  // FIXME: do this only if debug
-  cout << "Simu {\n";
-  cout << "  Event: " << Ev.Name << "\n";
-  cout << "  GroupSize: " << Times.size() << "\n";
-  cout << "  Times: " << Times << "\n";
-  cout << "}\n";
 
   // event loop
   return Simu->Run();

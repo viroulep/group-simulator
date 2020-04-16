@@ -28,7 +28,7 @@ export const asMap = (MapClass, obj) => {
 };
 
 // Assumes VectorClass is actually a class representing a vector...
-// Eg: our VectorInt or VectorString
+// Eg: our VectorTime or VectorString
 export const asVector = (VectorClass, array) => {
   const ret = new VectorClass();
   array.forEach((el) => ret.push_back(el));
