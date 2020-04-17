@@ -8,20 +8,16 @@ using namespace std;
 
 namespace libsimu {
 
-JudgesRunSimulator::JudgesRunSimulator(WCAEvent &E, const vector<Time> &RefTimes) : GroupSimulator(E, RefTimes)
+JudgesRunSimulator::JudgesRunSimulator(WCAEvent &E,
+    vector<Time> const &RefTimes, PropertiesMap const &SetupOverride)
+  : GroupSimulator(E, RefTimes, SetupOverride)
 {
 
-  Setup &C = Setup::get();
-
-  //for (unsigned int i = 0; i < C.Judges; i++) {
-    //Judges.insert(Judge{0, 0});
-  //}
-
-  for (unsigned int i = 0; i < C.Scramblers; i++) {
+  for (unsigned int i = 0; i < LocalSetup.Scramblers; i++) {
     Events.insert(SimuEvent{SimuEvent::ScramblerReady, nullptr, Walltime});
   }
 
-  for (unsigned int i = 0; i < C.Judges; i++) {
+  for (unsigned int i = 0; i < LocalSetup.Judges; i++) {
     Events.insert(SimuEvent{SimuEvent::RunnerInReady, nullptr, Walltime});
   }
 }
@@ -58,7 +54,6 @@ void JudgesRunSimulator::ActOnScramblerReady(const SimuEvent &)
 
 void JudgesRunSimulator::ActOnRunnerInReady(const SimuEvent &)
 {
-  Setup &C = Setup::get();
   Model &MC = Model::get();
   if (!ScrambledCubes.empty()) {
     Cube *c = *ScrambledCubes.begin();
@@ -67,7 +62,8 @@ void JudgesRunSimulator::ActOnRunnerInReady(const SimuEvent &)
       + c->SolvingTime + MC.RunOut;
     c->AttemptsDone++;
     if (c->AttemptsDone == E.MaxAttempts ||
-        (c->AttemptsDone == E.CutoffAttempts && c->SolvingTime >= C.Cutoff)) {
+        (c->AttemptsDone == E.CutoffAttempts
+         && c->SolvingTime >= LocalSetup.Cutoff)) {
       ActiveCubes.erase(find_if(ActiveCubes.begin(), ActiveCubes.end(),
             [&](const unique_ptr<Cube> &CP) { return CP.get() == c; }));
     } else {

@@ -31,40 +31,8 @@ string errorMessage(ErrorKind K)
 
 const string DefaultSimulator = "Runners";
 
-ErrCodeTy reconfigureStaff(unsigned Judges, unsigned Scramblers,
-    unsigned Runners)
-{
-  Setup &C = Setup::get();
-  if (Judges) {
-    C.Judges = Judges;
-  }
-  if (Scramblers) {
-    C.Scramblers = Scramblers;
-  }
-  if (Runners) {
-    C.Runners = Runners;
-  }
-  return errors::SUCCESS;
-}
-
-ErrCodeTy reconfigureRound(Time Cutoff, Time TimeLimit /*= 600 */)
-{
-  Setup &C = Setup::get();
-  C.Cutoff = Cutoff;
-  C.TimeLimit = TimeLimit;
-  return errors::SUCCESS;
-}
-
-ErrCodeTy reconfigureStats(unsigned ExtraRate, unsigned MiscrambleRate)
-{
-  Setup &C = Setup::get();
-  C.ExtraRate = ExtraRate;
-  C.MiscrambleRate = MiscrambleRate;
-  return errors::SUCCESS;
-}
-
-TimeResult simuGroup(const string &EventId, const TimeVector &Times,
-    const std::string &ModelId /*= DefaultSimulator */)
+TimeResult simuGroup(string const &EventId, TimeVector const &Times,
+    PropertiesMap const &SetupOverride, std::string const &ModelId)
 {
   WCAEvent::WCAEventKind K = WCAEvent::WCAEventIdToKind(EventId);
   if (K == WCAEvent::E_Unknown) {
@@ -72,15 +40,16 @@ TimeResult simuGroup(const string &EventId, const TimeVector &Times,
   }
 
   WCAEvent &Ev = WCAEvent::Get(K);
-  unique_ptr<GroupSimulator> Simu = GroupSimulator::Create(ModelId, Ev, Times);
+  unique_ptr<GroupSimulator> Simu =
+    GroupSimulator::Create(ModelId, Ev, Times, SetupOverride);
 
   // event loop
   return Simu->Run();
 }
 
-OptResult optimizeStaff(const string &EventId,
+OptResult optimizeStaff(string const &EventId,
   const TimeVector &Times, unsigned MaxJudges, unsigned TotalStaff,
-  const string &ModelId /* = DefaultSimulator */)
+  PropertiesMap const &SetupOverride, string const &ModelId)
 {
   WCAEvent::WCAEventKind K = WCAEvent::WCAEventIdToKind(EventId);
   if (K == WCAEvent::E_Unknown) {
@@ -96,20 +65,32 @@ OptResult optimizeStaff(const string &EventId,
 
   unsigned MinJudges = MaxJudges / 2;
 
-  if (MaxJudges > TotalStaff - MinScramblers - MinRunners) {
+  int Leftovers = TotalStaff - MinScramblers - MinRunners;
+  if (Leftovers <= 0) {
+    cerr << "Not enough TotalStaff\n";
+    return { errors::SIMULATION_FAILURE };
+  }
+  if (MaxJudges > (unsigned)Leftovers) {
     cerr << "MaxJudges needs to leave space for scramblers and runners\n";
+    return { errors::SIMULATION_FAILURE };
   }
   OptResult Res = { errors::SUCCESS };
 
   Res.BestResult = std::numeric_limits<decltype(OptResult::BestResult)>::max();
   Res.Scramblers = std::numeric_limits<decltype(OptResult::Scramblers)>::max();
 
+  // Local object to change the simulator's configuration
+  PropertiesMap LocalSetup(SetupOverride);
+
   for (unsigned J = MinJudges; J <= MaxJudges; J++) {
     unsigned RemainingStaff = TotalStaff - J;
     for (unsigned S = MinScramblers; S <= RemainingStaff - MinRunners; S++) {
       unsigned R = RemainingStaff - S;
-      reconfigureStaff(J, S, R);
-      unique_ptr<GroupSimulator> Simu = GroupSimulator::Create(ModelId, Ev, Times);
+      LocalSetup["judges"] = J;
+      LocalSetup["scramblers"] = S;
+      LocalSetup["runners"] = R;
+      unique_ptr<GroupSimulator> Simu =
+        GroupSimulator::Create(ModelId, Ev, Times, LocalSetup);
       if (!GroupSimulator::ModelUsesRunners(ModelId)) {
         R = 0;
       }

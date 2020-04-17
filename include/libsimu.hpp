@@ -49,25 +49,17 @@ PropertiesMap getSetupProps();
 PropertiesMap getModelProps();
 PropertiesMap getScramblingProps();
 
-// Depending on the model used, 'Runners' may be unused!
-ErrCodeTy reconfigureStaff(unsigned Judges, unsigned Scramblers, unsigned Runners);
-
-// By default both cutoff and time limit is 600 (a cutoff of 600 is equivalent to
-// no cutoff in the context of this program).
-ErrCodeTy reconfigureRound(Time Cutoff, Time TimeLimit = 600);
-
-// Experimental stuff
-ErrCodeTy reconfigureStats(unsigned ExtraRate, unsigned MiscrambleRate);
-
 // Entry point with a user specificed group of times
-TimeResult simuGroup(const std::string &EventId,
-  const TimeVector &Times, const std::string &ModelId = DefaultSimulator);
+TimeResult simuGroup(std::string const &EventId,
+  TimeVector const &Times, PropertiesMap const &SetupOverride,
+  std::string const &ModelId);
 
 // For a given amount of staff, explore all the (judge, scramblers, runners) to
 // find the shortest combination.
 OptResult optimizeStaff(const std::string &EventId,
   const TimeVector &Times, unsigned MaxJudges, unsigned TotalStaff,
-  const std::string &ModelId = DefaultSimulator);
+  PropertiesMap const &SetupOverride,
+  const std::string &ModelId);
 
 }
 

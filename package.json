@@ -1,6 +1,6 @@
 {
   "name": "@viroulep/group-simulator",
-  "version": "1.0.0-beta.5",
+  "version": "1.0.0-beta.6",
   "description": "Experimental group simulator for WCA competitions",
   "main": "dist/group-simulator-pack.js",
   "files": ["dist/"],

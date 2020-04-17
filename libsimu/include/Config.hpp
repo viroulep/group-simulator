@@ -12,7 +12,7 @@ namespace libsimu {
 // Setup configuration.
 // May contain more configuration later.
 struct Setup {
-  static Setup &get();
+  static const Setup &cget() { return get(); }
   static const Time MaxTimeLimit = 600;
   uint8_t Judges = 10;
   uint8_t Runners = 2;
@@ -29,7 +29,10 @@ struct Setup {
   ErrCodeTy loadMap(PropertiesMap const &Props);
   PropertiesMap asMap() const;
   friend std::ostream &operator<<(std::ostream &out, const Setup &C);
+  friend ErrCodeTy loadConfig(PropertiesMap const &Setup,
+      PropertiesMap const &Model, PropertiesMap const &Scrambling);
 private:
+  static Setup &get();
   Setup() = default;
 };
 

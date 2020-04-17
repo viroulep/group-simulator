@@ -11,7 +11,7 @@ namespace libsimu {
 void emitConfig() {
   cout << Model::get();
   cout << Scrambling::get();
-  cout << Setup::get();
+  cout << Setup::cget();
 }
 
 ostream &operator<<(ostream &os, const set<std::unique_ptr<Cube>> &C)

@@ -40,9 +40,6 @@ EMSCRIPTEN_BINDINGS(my_module) {
   function("getSetupProps", &getSetupProps);
   function("getModelProps", &getModelProps);
   function("getScramblingProps", &getScramblingProps);
-  function("reconfigureStaff", &reconfigureStaff);
-  function("reconfigureRound", &reconfigureRound);
-  function("reconfigureStats", &reconfigureStats);
   function("simuGroup", &simuGroup);
   function("optimizeStaff", &optimizeStaff);
 }

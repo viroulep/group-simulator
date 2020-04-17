@@ -40,11 +40,12 @@ int main(int argc, char **argv) {
     loadConfig(Res.C.Setup, Res.C.Model, Res.C.Scrambling);
   }
 
-  emitConfig();
-
   std::vector<Time> Times(GroupSize, Avg);
 
-  OptResult Result = optimizeStaff(EventId, Times, Judges, Staff, ModelId);
+  PropertiesMap SetupOverride;
+
+  OptResult Result = optimizeStaff(EventId, Times, Judges, Staff,
+      SetupOverride, ModelId);
   if (Result.Err) {
     cerr << "There was an error during the process, see below :(\n";
     cerr << errors::errorMessage(Result.Err) << "\n";

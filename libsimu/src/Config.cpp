@@ -92,7 +92,7 @@ namespace libsimu {
   }
 
   PropertiesMap getSetupProps() {
-    return Setup::get().asMap();
+    return Setup::cget().asMap();
   }
 
   PropertiesMap getScramblingProps() {

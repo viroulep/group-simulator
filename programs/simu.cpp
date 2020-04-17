@@ -24,6 +24,7 @@ static cl::opt<std::string> ModelId("m", cl::desc("Set the simulator to use (Run
 static cl::opt<unsigned> Judges("j", cl::desc("Overrides the number of judges"), cl::value_desc("judges"));
 static cl::opt<unsigned> Scramblers("s", cl::desc("Overrides the number of scramblers"), cl::value_desc("scramblers"));
 static cl::opt<unsigned> Runners("r", cl::desc("Overrides the number of runners"), cl::value_desc("runners"));
+static cl::opt<unsigned> MaxCubes("max-cubes", cl::desc("Overrides the maximum number of cubes per runner"), cl::value_desc("cubes"));
 
 static cl::opt<unsigned> TimeLimit("tl", cl::desc("Set the time limit"), cl::value_desc("seconds"), cl::init(600));
 static cl::opt<unsigned> Cutoff("cut", cl::desc("Set the cutoff"), cl::value_desc("seconds"), cl::init(600));
@@ -49,18 +50,19 @@ int main(int argc, char **argv) {
   }
 
 
-
+  PropertiesMap Override;
   // Default values are 0, and since they are invalid values they are considered
   // as not overriding the config.
-  reconfigureStaff(Judges, Scramblers, Runners);
-  reconfigureRound(Cutoff, TimeLimit);
-  reconfigureStats(ExtraRate, MiscrambleRate);
-
-  emitConfig();
+#define PROP(EntryName, MemberName)\
+  if (MemberName > 0) {\
+    Override[#EntryName] = MemberName;\
+  }
+#include "setup_props.def"
+#undef PROP
 
   std::vector<Time> Times(GroupSize, Avg);
 
-  TimeResult Result = simuGroup(EventId, Times, ModelId);
+  TimeResult Result = simuGroup(EventId, Times, Override, ModelId);
   if (Result.Err) {
     cerr << "There was an error during the process, see below :(\n";
     cerr << errors::errorMessage(Result.Err) << "\n";

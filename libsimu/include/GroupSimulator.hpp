@@ -4,6 +4,7 @@
 #include <set>
 #include "libsimu.hpp"
 #include "Cube.hpp"
+#include "Config.hpp"
 #include "WCAEvent.hpp"
 
 namespace libsimu {
@@ -43,7 +44,8 @@ using SortedCubeSet = std::multiset<Cube *, CubeCompare>;
 
 struct GroupSimulator {
 public:
-  GroupSimulator(WCAEvent &E, const std::vector<Time> &RefTimes);
+  GroupSimulator(WCAEvent &E, std::vector<Time> const &RefTimes,
+      PropertiesMap const &SetupOverride);
   virtual ~GroupSimulator() {};
   TimeResult Run();
 #define SIMU_EVENT_TYPE(Name) \
@@ -52,8 +54,9 @@ public:
   virtual std::ostream &EmitToStream(std::ostream &out) const = 0;
   friend std::ostream &operator<<(std::ostream &out, const GroupSimulator &GS);
 
-  static std::unique_ptr<GroupSimulator> Create(const std::string &ModelId,
-      WCAEvent &E, const std::vector<Time> &RefTimes);
+  static std::unique_ptr<GroupSimulator> Create(std::string const &ModelId,
+      WCAEvent &E, std::vector<Time> const &RefTimes,
+      PropertiesMap const &SetupOverride);
   static bool ModelUsesRunners(const std::string &ModelId);
 
 protected:
@@ -61,6 +64,7 @@ protected:
   Time Walltime = 0;
   EventQueue Events;
   JudgeQueue Judges;
+  Setup LocalSetup;
   WCAEvent &E;
   // The set of active cubes throughout the simulation.
   // It has ownership of the pointer.
@@ -78,7 +82,8 @@ protected:
 
 class RunnerSystemSimulator : public GroupSimulator {
 public:
-  RunnerSystemSimulator(WCAEvent &E, const std::vector<Time> &RefTimes);
+  RunnerSystemSimulator(WCAEvent &E, std::vector<Time> const &RefTimes,
+      PropertiesMap const &SetupOverride);
   ~RunnerSystemSimulator() {};
   virtual std::ostream &EmitToStream(std::ostream &out) const override;
 protected:
@@ -89,7 +94,8 @@ protected:
 
 class JudgesRunSimulator : public GroupSimulator {
 public:
-  JudgesRunSimulator(WCAEvent &E, const std::vector<Time> &RefTimes);
+  JudgesRunSimulator(WCAEvent &E, std::vector<Time> const &RefTimes,
+      PropertiesMap const &SetupOverride);
   ~JudgesRunSimulator() {};
   virtual std::ostream &EmitToStream(std::ostream &out) const override;
 protected:

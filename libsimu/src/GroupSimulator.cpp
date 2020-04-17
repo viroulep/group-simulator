@@ -13,13 +13,17 @@ bool Judge::operator<(const Judge &r) const
   return busyUntil < r.busyUntil;
 }
 
-GroupSimulator::GroupSimulator(WCAEvent &E, const std::vector<Time> &RefTimes) : E(E)
+GroupSimulator::GroupSimulator(WCAEvent &E, std::vector<Time> const &RefTimes,
+    PropertiesMap const &SetupOverride) : LocalSetup(Setup::cget()), E(E)
 {
   for (Time T : RefTimes) {
     unique_ptr<Cube> C = make_unique<Cube>(T);
     PendingScramble.insert(C.get());
     ActiveCubes.insert(std::move(C));
   }
+  // Load setup override, if any
+
+  LocalSetup.loadMap(SetupOverride);
   Model &MC = Model::get();
 
   // It doesn't matter if we add the shutdown time right now, and it's
@@ -27,15 +31,16 @@ GroupSimulator::GroupSimulator(WCAEvent &E, const std::vector<Time> &RefTimes) :
   Walltime = MC.InitGroup + MC.ShutdownGroup;
 }
 
-unique_ptr<GroupSimulator> GroupSimulator::Create(const string &ModelId,
-      WCAEvent &E, const vector<Time> &RefTimes)
+unique_ptr<GroupSimulator> GroupSimulator::Create(string const &ModelId,
+      WCAEvent &E, vector<Time> const &RefTimes,
+      PropertiesMap const &SetupOverride)
 {
   // We don't use a string switch here, because using it actually *creates*
   // all unique_ptr before choosing the right one!
   if (ModelId == "Runners") {
-    return make_unique<RunnerSystemSimulator>(E, RefTimes);
+    return make_unique<RunnerSystemSimulator>(E, RefTimes, SetupOverride);
   } else if (ModelId == "JudgesRun") {
-    return make_unique<JudgesRunSimulator>(E, RefTimes);
+    return make_unique<JudgesRunSimulator>(E, RefTimes, SetupOverride);
   } else {
     return unique_ptr<GroupSimulator>{};
   }

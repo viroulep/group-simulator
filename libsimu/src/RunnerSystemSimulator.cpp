@@ -8,20 +8,20 @@ using namespace std;
 
 namespace libsimu {
 
-RunnerSystemSimulator::RunnerSystemSimulator(WCAEvent &E, const vector<Time> &RefTimes) : GroupSimulator(E, RefTimes)
+RunnerSystemSimulator::RunnerSystemSimulator(WCAEvent &E,
+    vector<Time> const &RefTimes, PropertiesMap const &SetupOverride)
+  : GroupSimulator(E, RefTimes, SetupOverride)
 {
 
-  Setup &C = Setup::get();
-
-  for (unsigned int i = 0; i < C.Judges; i++) {
+  for (unsigned int i = 0; i < LocalSetup.Judges; i++) {
     Judges.insert(Judge{0, 0});
   }
 
-  for (unsigned int i = 0; i < C.Scramblers; i++) {
+  for (unsigned int i = 0; i < LocalSetup.Scramblers; i++) {
     Events.insert(SimuEvent{SimuEvent::ScramblerReady, nullptr, Walltime});
   }
 
-  for (unsigned int i = 0; i < C.Runners; i++) {
+  for (unsigned int i = 0; i < LocalSetup.Runners; i++) {
     Events.insert(SimuEvent{SimuEvent::RunnerInReady, nullptr, Walltime});
   }
 }
@@ -35,10 +35,10 @@ void RunnerSystemSimulator::ActOnCubeScrambled(const SimuEvent &e)
 void RunnerSystemSimulator::ActOnCubeSolved(const SimuEvent &e)
 {
   assert(e.c);
-  Setup &C = Setup::get();
   e.c->AttemptsDone++;
   if (e.c->AttemptsDone == E.MaxAttempts ||
-      (e.c->AttemptsDone == E.CutoffAttempts && e.c->SolvingTime >= C.Cutoff)) {
+      (e.c->AttemptsDone == E.CutoffAttempts
+       && e.c->SolvingTime >= LocalSetup.Cutoff)) {
     ActiveCubes.erase(find_if(ActiveCubes.begin(), ActiveCubes.end(),
           [&](const unique_ptr<Cube> &CP) { return CP.get() == e.c; }));
   } else {
@@ -63,7 +63,6 @@ void RunnerSystemSimulator::ActOnScramblerReady(const SimuEvent &)
 void RunnerSystemSimulator::ActOnRunnerInReady(const SimuEvent &)
 {
   Model &MC = Model::get();
-  Setup &C = Setup::get();
   if (ScrambledCubes.empty()) {
     // Else try to run out a few seconds later
     if (!SolvedCubes.empty()) {
@@ -87,7 +86,7 @@ void RunnerSystemSimulator::ActOnRunnerInReady(const SimuEvent &)
     unsigned int total = 0;
     // The runner needs to run in the cubes, then it will be available to run out.
     Time NextRunnerAvailability = Walltime + MC.RunIn;
-    while (!ScrambledCubes.empty() && ++total <= C.MaxCubes) {
+    while (!ScrambledCubes.empty() && ++total <= LocalSetup.MaxCubes) {
       Cube *c = *ScrambledCubes.begin();
       ScrambledCubes.erase(ScrambledCubes.begin());
       Judge j = *Judges.begin();

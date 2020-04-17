@@ -48,6 +48,7 @@ struct llvm::yaml::MappingTraits<libsimu::programs::SetupConfig> {
 #include "setup_props.def"
   }
 };
+#undef PROP
 
 template <>
 struct llvm::yaml::MappingTraits<libsimu::programs::ScramblingConfig> {
