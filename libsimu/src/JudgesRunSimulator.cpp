@@ -32,10 +32,20 @@ void JudgesRunSimulator::ActOnCubeScrambled(const SimuEvent &e)
   }
 }
 
-void JudgesRunSimulator::ActOnCubeSolved(const SimuEvent &)
+void JudgesRunSimulator::ActOnCubeSolved(const SimuEvent &e)
 {
-  // Not used
-  assert(false);
+  assert(e.c);
+  Cube *c = e.c;
+  c->AttemptsDone++;
+  if (c->AttemptsDone == E.MaxAttempts ||
+      (c->AttemptsDone == E.CutoffAttempts
+       && c->SolvingTime >= LocalSetup.Cutoff)) {
+    ActiveCubes.erase(find_if(ActiveCubes.begin(), ActiveCubes.end(),
+          [&](const unique_ptr<Cube> &CP) { return CP.get() == c; }));
+  } else {
+    // We know the judge is going to run it out ASAP
+    Events.insert(SimuEvent{SimuEvent::CubeRanOut, c, e.T});
+  }
 }
 
 void JudgesRunSimulator::ActOnScramblerReady(const SimuEvent &)
@@ -60,16 +70,7 @@ void JudgesRunSimulator::ActOnRunnerInReady(const SimuEvent &)
     ScrambledCubes.erase(ScrambledCubes.begin());
     Time ranOutTime = Walltime + MC.RunIn + MC.CompetitorReady + MC.CompetitorCleanup
       + c->SolvingTime + MC.RunOut;
-    c->AttemptsDone++;
-    if (c->AttemptsDone == E.MaxAttempts ||
-        (c->AttemptsDone == E.CutoffAttempts
-         && c->SolvingTime >= LocalSetup.Cutoff)) {
-      ActiveCubes.erase(find_if(ActiveCubes.begin(), ActiveCubes.end(),
-            [&](const unique_ptr<Cube> &CP) { return CP.get() == c; }));
-    } else {
-      // We know the judge is going to run it out ASAP
-      Events.insert(SimuEvent{SimuEvent::CubeRanOut, c, ranOutTime});
-    }
+    Events.insert(SimuEvent{SimuEvent::CubeSolved, c, ranOutTime});
     Events.insert(SimuEvent{SimuEvent::RunnerInReady, nullptr, ranOutTime});
   } else {
     // TODO: be smart and insert RunnerInReady later, looking up for a scrambled cube
