@@ -14,11 +14,11 @@ JudgesRunSimulator::JudgesRunSimulator(WCAEvent &E,
 {
 
   for (unsigned int i = 0; i < LocalSetup.Scramblers; i++) {
-    Events.insert(SimuEvent{SimuEvent::ScramblerReady, nullptr, Walltime});
+    Events.insert({SimuEvent::ScramblerReady, nullptr, Walltime});
   }
 
   for (unsigned int i = 0; i < LocalSetup.Judges; i++) {
-    Events.insert(SimuEvent{SimuEvent::RunnerInReady, nullptr, Walltime});
+    Events.insert({SimuEvent::RunnerInReady, nullptr, Walltime});
   }
 }
 
@@ -28,7 +28,7 @@ void JudgesRunSimulator::ActOnCubeScrambled(const SimuEvent &e)
   ScrambledCubes.insert(e.c);
   if (judgesIdle_) {
     judgesIdle_--;
-    Events.insert(SimuEvent{SimuEvent::RunnerInReady, nullptr, Walltime});
+    Events.insert({SimuEvent::RunnerInReady, nullptr, Walltime});
   }
 }
 
@@ -44,7 +44,7 @@ void JudgesRunSimulator::ActOnCubeSolved(const SimuEvent &e)
           [&](const unique_ptr<Cube> &CP) { return CP.get() == c; }));
   } else {
     // We know the judge is going to run it out ASAP
-    Events.insert(SimuEvent{SimuEvent::CubeRanOut, c, e.T});
+    Events.insert({SimuEvent::CubeRanOut, c, e.T});
   }
 }
 
@@ -62,7 +62,7 @@ void JudgesRunSimulator::ActOnRunnerInReady(const SimuEvent &)
     Time ranOutTime = Walltime + MC.RunIn + MC.CompetitorReady + MC.CompetitorCleanup
       + c->SolvingTime + MC.RunOut;
     Events.insert(getSolvedWithExtra(c, ranOutTime));
-    Events.insert(SimuEvent{SimuEvent::RunnerInReady, nullptr, ranOutTime});
+    Events.insert({SimuEvent::RunnerInReady, nullptr, ranOutTime});
   } else {
     // TODO: be smart and insert RunnerInReady later, looking up for a scrambled cube
     // This will let us get rid of this variable!
@@ -82,7 +82,7 @@ void JudgesRunSimulator::ActOnCubeRanOut(const SimuEvent &e)
   PendingScramble.insert(e.c);
   if (ScramblersAvailable) {
     ScramblersAvailable--;
-    Events.insert(SimuEvent{SimuEvent::ScramblerReady, nullptr, Walltime});
+    Events.insert({SimuEvent::ScramblerReady, nullptr, Walltime});
   }
 }
 

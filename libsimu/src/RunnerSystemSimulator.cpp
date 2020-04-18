@@ -18,11 +18,11 @@ RunnerSystemSimulator::RunnerSystemSimulator(WCAEvent &E,
   }
 
   for (unsigned int i = 0; i < LocalSetup.Scramblers; i++) {
-    Events.insert(SimuEvent{SimuEvent::ScramblerReady, nullptr, Walltime});
+    Events.insert({SimuEvent::ScramblerReady, nullptr, Walltime});
   }
 
   for (unsigned int i = 0; i < LocalSetup.Runners; i++) {
-    Events.insert(SimuEvent{SimuEvent::RunnerInReady, nullptr, Walltime});
+    Events.insert({SimuEvent::RunnerInReady, nullptr, Walltime});
   }
 }
 
@@ -57,19 +57,19 @@ void RunnerSystemSimulator::ActOnRunnerInReady(const SimuEvent &)
   if (ScrambledCubes.empty()) {
     // Else try to run out a few seconds later
     if (!SolvedCubes.empty()) {
-      Events.insert(SimuEvent({SimuEvent::RunnerOutReady, nullptr, Walltime + MC.RunIn}));
+      Events.insert({SimuEvent::RunnerOutReady, nullptr, Walltime + MC.RunIn});
     } else {
       // Attempt to find a scrambled cube in the queue
       auto nextEvent = findFirst(SimuEvent::CubeScrambled);
       if (nextEvent != Events.end()) {
-        Events.insert(SimuEvent({SimuEvent::RunnerInReady, nullptr, nextEvent->T}));
+        Events.insert({SimuEvent::RunnerInReady, nullptr, nextEvent->T});
       } else {
         nextEvent = findFirst(SimuEvent::CubeSolved);
         if (nextEvent != Events.end()) {
-          Events.insert(SimuEvent({SimuEvent::RunnerOutReady, nullptr, nextEvent->T}));
+          Events.insert({SimuEvent::RunnerOutReady, nullptr, nextEvent->T});
         } else {
           // Else just wait an arbitrary amount of time
-          Events.insert(SimuEvent({SimuEvent::RunnerInReady, nullptr, Walltime + 10}));
+          Events.insert({SimuEvent::RunnerInReady, nullptr, Walltime + 10});
         }
       }
     }
@@ -97,19 +97,19 @@ void RunnerSystemSimulator::ActOnRunnerInReady(const SimuEvent &)
       Judges.insert(j);
       Events.insert(getSolvedWithExtra(c, j.busyUntil));
     }
-    Events.insert(SimuEvent({SimuEvent::RunnerOutReady, nullptr, NextRunnerAvailability}));
+    Events.insert({SimuEvent::RunnerOutReady, nullptr, NextRunnerAvailability});
   }
 }
 
 void RunnerSystemSimulator::ActOnRunnerOutReady(const SimuEvent &)
 {
   Time ranOutTime = Walltime + Model::get().RunOut;
-  Events.insert(SimuEvent({SimuEvent::RunnerInReady, nullptr, ranOutTime}));
+  Events.insert({SimuEvent::RunnerInReady, nullptr, ranOutTime});
   // Assume a runner can run back any number of cubes!
   while (!SolvedCubes.empty()) {
     Cube *c = *SolvedCubes.begin();
     SolvedCubes.erase(SolvedCubes.begin());
-    Events.insert(SimuEvent({SimuEvent::CubeRanOut, c, ranOutTime}));
+    Events.insert({SimuEvent::CubeRanOut, c, ranOutTime});
   }
 }
 
@@ -120,7 +120,7 @@ void RunnerSystemSimulator::ActOnCubeRanOut(const SimuEvent &e)
   // Wake up a Scrambler a mark them ready
   if (ScramblersAvailable) {
     ScramblersAvailable--;
-    Events.insert(SimuEvent({SimuEvent::ScramblerReady, nullptr, Walltime}));
+    Events.insert({SimuEvent::ScramblerReady, nullptr, Walltime});
   }
 }
 
