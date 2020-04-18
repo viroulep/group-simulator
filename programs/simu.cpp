@@ -32,9 +32,8 @@ static cl::opt<unsigned> Cutoff("cut", cl::desc("Set the cutoff"), cl::value_des
 static cl::opt<unsigned> GroupSize("size", cl::desc("Set the group size"), cl::value_desc("number"), cl::init(20));
 static cl::opt<unsigned> Avg("avg-time", cl::desc("Set the group average time"), cl::value_desc("seconds"), cl::init(10));
 
-// Experimental or not implemented
-static cl::opt<unsigned> ExtraRate("extra", cl::desc("Set the extra rate"), cl::value_desc("percentage"), cl::init(0), cl::Hidden);
-static cl::opt<unsigned> MiscrambleRate("miscramble", cl::desc("Set the miscramble rate"), cl::value_desc("percentage"), cl::init(0), cl::Hidden);
+static cl::opt<unsigned> ExtraRate("extra", cl::desc("Overrides the extra rate"), cl::value_desc("percentage"), cl::init(0));
+static cl::opt<unsigned> MiscrambleRate("miscramble", cl::desc("Overrides the miscramble rate"), cl::value_desc("percentage"), cl::init(0));
 
 
 int main(int argc, char **argv) {

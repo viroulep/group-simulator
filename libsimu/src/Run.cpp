@@ -81,6 +81,10 @@ OptResult optimizeStaff(string const &EventId,
 
   // Local object to change the simulator's configuration
   PropertiesMap LocalSetup(SetupOverride);
+  // For optimizing we want the best case, we don't want extra/miscramble
+  // probabilities to mess with figuring out the correct setup.
+  LocalSetup["miscramble_rate"] = 0;
+  LocalSetup["extra_rate"] = 0;
 
   for (unsigned J = MinJudges; J <= MaxJudges; J++) {
     unsigned RemainingStaff = TotalStaff - J;
