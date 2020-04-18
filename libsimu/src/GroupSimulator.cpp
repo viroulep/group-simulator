@@ -3,6 +3,7 @@
 
 #include "GroupSimulator.hpp"
 #include "Config.hpp"
+#include "RNG.hpp"
 
 using namespace std;
 
@@ -55,6 +56,14 @@ bool GroupSimulator::ModelUsesRunners(const string &ModelId)
     return false;
   }
   return false;
+}
+
+SimuEvent GroupSimulator::getSolvedWithExtra(Cube *c, Time t)
+{
+  if (RNG::get().shouldHappen(LocalSetup.ExtraRate)) {
+    t += Model::get().ExtraDelay;
+  }
+  return { SimuEvent::CubeSolved, c, t };
 }
 
 TimeResult GroupSimulator::Run()
@@ -124,5 +133,28 @@ EventQueue::iterator GroupSimulator::findFirst(const SimuEvent::EventKind K)
   });
 }
 
+void GroupSimulator::ActOnCubeSolved(const SimuEvent &) {}
+
+void GroupSimulator::ActOnCubeScrambled(const SimuEvent &) {}
+
+void GroupSimulator::ActOnCubeRanOut(const SimuEvent &) {}
+
+void GroupSimulator::ActOnScramblerReady(const SimuEvent &)
+{
+  if (!PendingScramble.empty()) {
+    Cube *c = *PendingScramble.begin();
+    Time doneScrambling = Walltime + E.ScramblingCost();
+    PendingScramble.erase(PendingScramble.begin());
+    Events.insert(SimuEvent({SimuEvent::ScramblerReady, nullptr, doneScrambling}));
+    Events.insert(SimuEvent({SimuEvent::CubeScrambled, c, doneScrambling}));
+  } else {
+    // Go idle, we'll be waken up by after a run-out
+    ScramblersAvailable++;
+  }
+}
+
+void GroupSimulator::ActOnRunnerInReady(const SimuEvent &) {}
+
+void GroupSimulator::ActOnRunnerOutReady(const SimuEvent &) {}
 
 }

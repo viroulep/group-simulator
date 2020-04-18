@@ -6,6 +6,7 @@ set(LIBSIMU_SOURCES
   JudgesRunSimulator.cpp
   RunnerSystemSimulator.cpp
   Run.cpp
+  RNG.cpp
   WCAEvent.cpp
   )
 

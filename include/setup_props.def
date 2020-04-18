@@ -1,4 +1,4 @@
-// Model's properties
+// Setup's properties
 PROP(extra_rate, ExtraRate);
 PROP(cubes_per_runner, MaxCubes);
 PROP(miscramble_rate, MiscrambleRate);

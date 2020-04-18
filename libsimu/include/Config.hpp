@@ -43,6 +43,8 @@ struct Model {
   Time CompetitorCleanup = 15;
   Time RunOut = 20;
   Time ShutdownGroup = 0;
+  // Time delay necessary to handle an extra
+  Time ExtraDelay = 90;
   // Or CubesPerJudge if no runner
   unsigned int CubesPerRunner = 1;
 

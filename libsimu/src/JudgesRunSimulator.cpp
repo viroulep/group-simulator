@@ -48,18 +48,9 @@ void JudgesRunSimulator::ActOnCubeSolved(const SimuEvent &e)
   }
 }
 
-void JudgesRunSimulator::ActOnScramblerReady(const SimuEvent &)
+void JudgesRunSimulator::ActOnScramblerReady(const SimuEvent &e)
 {
-  if (!PendingScramble.empty()) {
-    Cube *c = *PendingScramble.begin();
-    Time doneScrambling = Walltime + E.ScramblingCost();
-    PendingScramble.erase(PendingScramble.begin());
-    Events.insert(SimuEvent{SimuEvent::ScramblerReady, nullptr, doneScrambling});
-    Events.insert(SimuEvent{SimuEvent::CubeScrambled, c, doneScrambling});
-  } else {
-    // Go idle, we'll be waken up by after a run-out
-    ScramblersAvailable++;
-  }
+  GroupSimulator::ActOnScramblerReady(e);
 }
 
 void JudgesRunSimulator::ActOnRunnerInReady(const SimuEvent &)
@@ -70,7 +61,7 @@ void JudgesRunSimulator::ActOnRunnerInReady(const SimuEvent &)
     ScrambledCubes.erase(ScrambledCubes.begin());
     Time ranOutTime = Walltime + MC.RunIn + MC.CompetitorReady + MC.CompetitorCleanup
       + c->SolvingTime + MC.RunOut;
-    Events.insert(SimuEvent{SimuEvent::CubeSolved, c, ranOutTime});
+    Events.insert(getSolvedWithExtra(c, ranOutTime));
     Events.insert(SimuEvent{SimuEvent::RunnerInReady, nullptr, ranOutTime});
   } else {
     // TODO: be smart and insert RunnerInReady later, looking up for a scrambled cube

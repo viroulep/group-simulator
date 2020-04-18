@@ -5,3 +5,4 @@ PROP(competitor_ready, CompetitorReady);
 PROP(competitor_cleanup, CompetitorCleanup);
 PROP(run_out, RunOut);
 PROP(shutdown_group, ShutdownGroup);
+PROP(extra_delay, ExtraDelay);

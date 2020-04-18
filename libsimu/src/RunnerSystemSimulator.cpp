@@ -46,18 +46,9 @@ void RunnerSystemSimulator::ActOnCubeSolved(const SimuEvent &e)
   }
 }
 
-void RunnerSystemSimulator::ActOnScramblerReady(const SimuEvent &)
+void RunnerSystemSimulator::ActOnScramblerReady(const SimuEvent &e)
 {
-  if (!PendingScramble.empty()) {
-    Cube *c = *PendingScramble.begin();
-    Time doneScrambling = Walltime + E.ScramblingCost();
-    PendingScramble.erase(PendingScramble.begin());
-    Events.insert(SimuEvent({SimuEvent::ScramblerReady, nullptr, doneScrambling}));
-    Events.insert(SimuEvent({SimuEvent::CubeScrambled, c, doneScrambling}));
-  } else {
-    // Go idle, we'll be waken up by after a run-out
-    ScramblersAvailable++;
-  }
+  GroupSimulator::ActOnScramblerReady(e);
 }
 
 void RunnerSystemSimulator::ActOnRunnerInReady(const SimuEvent &)
@@ -104,7 +95,7 @@ void RunnerSystemSimulator::ActOnRunnerInReady(const SimuEvent &)
       // Compute attempt endtime
       j.busyUntil = NextRunnerAvailability + MC.CompetitorReady + MC.CompetitorCleanup + c->SolvingTime;
       Judges.insert(j);
-      Events.insert(SimuEvent({SimuEvent::CubeSolved, c, j.busyUntil}));
+      Events.insert(getSolvedWithExtra(c, j.busyUntil));
     }
     Events.insert(SimuEvent({SimuEvent::RunnerOutReady, nullptr, NextRunnerAvailability}));
   }

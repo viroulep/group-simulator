@@ -49,7 +49,7 @@ public:
   virtual ~GroupSimulator() {};
   TimeResult Run();
 #define SIMU_EVENT_TYPE(Name) \
-  virtual void ActOn##Name(const SimuEvent &e) = 0;
+  virtual void ActOn##Name(const SimuEvent &e);
 #include "types.def"
   virtual std::ostream &EmitToStream(std::ostream &out) const = 0;
   friend std::ostream &operator<<(std::ostream &out, const GroupSimulator &GS);
@@ -61,6 +61,8 @@ public:
 
 protected:
   EventQueue::iterator findFirst(SimuEvent::EventKind K);
+  // Return the "CubeSolved" event, taking into account the extra probability.
+  SimuEvent getSolvedWithExtra(Cube *c, Time t);
   Time Walltime = 0;
   EventQueue Events;
   JudgeQueue Judges;
