@@ -145,8 +145,17 @@ void GroupSimulator::ActOnScramblerReady(const SimuEvent &)
     Cube *c = *PendingScramble.begin();
     Time doneScrambling = Walltime + E.ScramblingCost();
     PendingScramble.erase(PendingScramble.begin());
-    Events.insert(SimuEvent({SimuEvent::ScramblerReady, nullptr, doneScrambling}));
-    Events.insert(SimuEvent({SimuEvent::CubeScrambled, c, doneScrambling}));
+    if (RNG::get().shouldHappen(LocalSetup.MiscrambleRate)) {
+      // Oops, the scrambler made a mistake
+      // Assume that it's given back to the competitor, which solves it and
+      // give it back.
+      // We handle that by inserting a "CubeRanOut" later in the queue.
+      Events.insert({SimuEvent::CubeRanOut, c, doneScrambling + c->SolvingTime});
+    } else {
+      // Proceed normally
+      Events.insert({SimuEvent::CubeScrambled, c, doneScrambling});
+    }
+    Events.insert({SimuEvent::ScramblerReady, nullptr, doneScrambling});
   } else {
     // Go idle, we'll be waken up by after a run-out
     ScramblersAvailable++;
