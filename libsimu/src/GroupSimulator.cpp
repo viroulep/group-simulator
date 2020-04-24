@@ -62,6 +62,8 @@ SimuEvent GroupSimulator::getSolvedWithExtra(Cube *c, Time t)
 {
   if (RNG::get().shouldHappen(LocalSetup.ExtraRate)) {
     t += Model::get().ExtraDelay;
+  } else {
+    c->AttemptsDone++;
   }
   return { SimuEvent::CubeSolved, c, t };
 }
@@ -72,7 +74,7 @@ TimeResult GroupSimulator::Run()
     SimuEvent currentEvent = NextEvent();
     if (currentEvent.c
         && (currentEvent.c->AttemptsDone < 0
-            || currentEvent.c->AttemptsDone >= 5)) {
+            || currentEvent.c->AttemptsDone > 5)) {
       return {errors::SIMULATION_FAILURE, 0};
     }
     switch (currentEvent.Kind) {

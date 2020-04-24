@@ -36,8 +36,7 @@ void JudgesRunSimulator::ActOnCubeSolved(const SimuEvent &e)
 {
   assert(e.c);
   Cube *c = e.c;
-  c->AttemptsDone++;
-  if (CubeIsDone(e.c)) {
+  if (CubeIsDone(c)) {
     ActiveCubes.erase(find_if(ActiveCubes.begin(), ActiveCubes.end(),
           [&](const unique_ptr<Cube> &CP) { return CP.get() == c; }));
   } else {

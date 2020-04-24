@@ -35,8 +35,6 @@ void RunnerSystemSimulator::ActOnCubeScrambled(const SimuEvent &e)
 void RunnerSystemSimulator::ActOnCubeSolved(const SimuEvent &e)
 {
   assert(e.c);
-  // FIXME: handle extra here...
-  e.c->AttemptsDone++;
   if (CubeIsDone(e.c)) {
     ActiveCubes.erase(find_if(ActiveCubes.begin(), ActiveCubes.end(),
           [&](const unique_ptr<Cube> &CP) { return CP.get() == e.c; }));
