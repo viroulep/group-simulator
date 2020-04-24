@@ -15,7 +15,9 @@ struct WCAEvent {
   };
 
   WCAEvent(WCAEventKind K, std::string &&Id, std::string &&Name, uint8_t Max, uint8_t Cutoff, uint8_t Rank);
-  Time ScramblingCost() const;
+  Time getScramblingCost() const;
+  // Yep, not flexible but enough.
+  bool hasCumulativeTimeLimit() const;
   uint8_t MaxAttempts;
   uint8_t CutoffAttempts;
   // AFAIK it's under 255

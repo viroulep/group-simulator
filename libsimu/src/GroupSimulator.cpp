@@ -17,14 +17,14 @@ bool Judge::operator<(const Judge &r) const
 GroupSimulator::GroupSimulator(WCAEvent &E, std::vector<Time> const &RefTimes,
     PropertiesMap const &SetupOverride) : LocalSetup(Setup::cget()), E(E)
 {
+  // Load setup override, if any
+  LocalSetup.loadMap(SetupOverride);
+
   for (Time T : RefTimes) {
-    unique_ptr<Cube> C = make_unique<Cube>(T);
+    unique_ptr<Cube> C = make_unique<Cube>(E, T, LocalSetup.TimeLimit);
     PendingScramble.insert(C.get());
     ActiveCubes.insert(std::move(C));
   }
-  // Load setup override, if any
-
-  LocalSetup.loadMap(SetupOverride);
   Model &MC = Model::get();
 
   // It doesn't matter if we add the shutdown time right now, and it's
@@ -126,6 +126,14 @@ bool GroupSimulator::Done() const
   return ActiveCubes.empty();
 }
 
+bool GroupSimulator::CubeIsDone(Cube *C) const
+{
+  return (C->getSolvingTime() == 0 || // DNS for next attempts (cumulative)
+          C->AttemptsDone == E.MaxAttempts || // finished
+          (C->AttemptsDone == E.CutoffAttempts
+           && C->getSolvingTime() >= LocalSetup.Cutoff)); // cutoff
+}
+
 EventQueue::iterator GroupSimulator::findFirst(const SimuEvent::EventKind K)
 {
   return find_if(Events.begin(), Events.end(), [&](const SimuEvent &SE) {
@@ -143,14 +151,14 @@ void GroupSimulator::ActOnScramblerReady(const SimuEvent &)
 {
   if (!PendingScramble.empty()) {
     Cube *c = *PendingScramble.begin();
-    Time doneScrambling = Walltime + E.ScramblingCost();
+    Time doneScrambling = Walltime + E.getScramblingCost();
     PendingScramble.erase(PendingScramble.begin());
     if (RNG::get().shouldHappen(LocalSetup.MiscrambleRate)) {
       // Oops, the scrambler made a mistake
       // Assume that it's given back to the competitor, which solves it and
       // give it back.
       // We handle that by inserting a "CubeRanOut" later in the queue.
-      Events.insert({SimuEvent::CubeRanOut, c, doneScrambling + c->SolvingTime});
+      Events.insert({SimuEvent::CubeRanOut, c, doneScrambling + c->getSolvingTime()});
     } else {
       // Proceed normally
       Events.insert({SimuEvent::CubeScrambled, c, doneScrambling});

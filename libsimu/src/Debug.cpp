@@ -78,7 +78,8 @@ ostream &operator<<(ostream &out, const SimuEvent &SE)
 
 ostream &operator<<(ostream &out, const Cube &C)
 {
-  out << "Cube{" << to_string(C.AttemptsDone) << "}";
+  out << "Cube{" << to_string(C.AttemptsDone);
+  out << ", p:" << to_string(C.Prio) << "}";
   return out;
 }
 

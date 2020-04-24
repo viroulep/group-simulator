@@ -26,9 +26,23 @@ WCAEvent::WCAEventKind WCAEvent::WCAEventIdToKind(const string &EventId)
   }
 }
 
-Time WCAEvent::ScramblingCost() const
+Time WCAEvent::getScramblingCost() const
 {
   return Scrambling::get()[Id];
+}
+
+bool WCAEvent::hasCumulativeTimeLimit() const
+{
+  // Best practice is to use cumulative time limits for blindfolded events.
+  assert(Kind != E_Unknown);
+  switch(Kind) {
+    case E_444bf: // Intentional fall-through!
+    case E_333bf:
+    case E_555bf:
+      return true;
+    default:
+      return false;
+  }
 }
 
 unique_ptr<WCAEvent> WCAEvent::Create(WCAEventKind K)

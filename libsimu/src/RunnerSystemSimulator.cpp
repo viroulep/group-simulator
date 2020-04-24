@@ -35,10 +35,9 @@ void RunnerSystemSimulator::ActOnCubeScrambled(const SimuEvent &e)
 void RunnerSystemSimulator::ActOnCubeSolved(const SimuEvent &e)
 {
   assert(e.c);
+  // FIXME: handle extra here...
   e.c->AttemptsDone++;
-  if (e.c->AttemptsDone == E.MaxAttempts ||
-      (e.c->AttemptsDone == E.CutoffAttempts
-       && e.c->SolvingTime >= LocalSetup.Cutoff)) {
+  if (CubeIsDone(e.c)) {
     ActiveCubes.erase(find_if(ActiveCubes.begin(), ActiveCubes.end(),
           [&](const unique_ptr<Cube> &CP) { return CP.get() == e.c; }));
   } else {
@@ -93,7 +92,7 @@ void RunnerSystemSimulator::ActOnRunnerInReady(const SimuEvent &)
         NextRunnerAvailability = j.busyUntil;
       }
       // Compute attempt endtime
-      j.busyUntil = NextRunnerAvailability + MC.CompetitorReady + MC.CompetitorCleanup + c->SolvingTime;
+      j.busyUntil = NextRunnerAvailability + MC.CompetitorReady + MC.CompetitorCleanup + c->getSolvingTime();
       Judges.insert(j);
       Events.insert(getSolvedWithExtra(c, j.busyUntil));
     }

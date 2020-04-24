@@ -80,6 +80,7 @@ protected:
   virtual void DoneEvent(SimuEvent SE);
   SimuEvent NextEvent();
   virtual bool Done() const;
+  bool CubeIsDone(Cube *C) const;
 };
 
 class RunnerSystemSimulator : public GroupSimulator {

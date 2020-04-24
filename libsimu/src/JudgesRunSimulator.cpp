@@ -37,9 +37,7 @@ void JudgesRunSimulator::ActOnCubeSolved(const SimuEvent &e)
   assert(e.c);
   Cube *c = e.c;
   c->AttemptsDone++;
-  if (c->AttemptsDone == E.MaxAttempts ||
-      (c->AttemptsDone == E.CutoffAttempts
-       && c->SolvingTime >= LocalSetup.Cutoff)) {
+  if (CubeIsDone(e.c)) {
     ActiveCubes.erase(find_if(ActiveCubes.begin(), ActiveCubes.end(),
           [&](const unique_ptr<Cube> &CP) { return CP.get() == c; }));
   } else {
@@ -60,7 +58,7 @@ void JudgesRunSimulator::ActOnRunnerInReady(const SimuEvent &)
     Cube *c = *ScrambledCubes.begin();
     ScrambledCubes.erase(ScrambledCubes.begin());
     Time ranOutTime = Walltime + MC.RunIn + MC.CompetitorReady + MC.CompetitorCleanup
-      + c->SolvingTime + MC.RunOut;
+      + c->getSolvingTime() + MC.RunOut;
     Events.insert(getSolvedWithExtra(c, ranOutTime));
     Events.insert({SimuEvent::RunnerInReady, nullptr, ranOutTime});
   } else {
