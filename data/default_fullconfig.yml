@@ -1,34 +1,35 @@
 setup:
-  judges: 10
-  scramblers: 3
-  runners: 2
   cubes_per_runner: 3
+  cutoff: 600
   extra_rate: 0
+  judges: 10
   miscramble_rate: 0
+  runners: 2
+  scramblers: 3
+  time_limit: 600
 model:
-  init_group: 120
-  run_in: 20
-  run_out: 15
-  competitor_ready: 30
   competitor_cleanup: 15
+  competitor_ready: 30
+  extra_delay: 90
+  init_group: 120
+  run_in: 25
+  run_out: 20
   shutdown_group: 0
 scrambling:
-  '333': 20
   '222': 10
+  '333': 20
   '444': 30
   '555': 45
   '666': 60
   '777': 80
-  333bf: 10
-  # Not applicable
+  333bf: 20
   333fm: 0
+  333mbf: 0
   333oh: 20
+  444bf: 50
+  555bf: 45
   clock: 60
   minx: 45
   pyram: 10
   skewb: 10
   sq1: 30
-  444bf: 50
-  555bf: 45
-  # Not applicable: simulating multi won't be an option
-  333mbf: 0
