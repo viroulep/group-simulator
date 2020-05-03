@@ -40,7 +40,16 @@ int main(int argc, char **argv) {
     loadConfig(Res.C.Setup, Res.C.Model, Res.C.Scrambling);
   }
 
-  std::vector<Time> Times(GroupSize, Avg);
+  std::vector<Time> Times;
+
+  if (Psychsheet.size()) {
+    auto Err = programs::loadPsychsheet(Psychsheet, Times);
+    if (Err != errors::SUCCESS) {
+      return Err;
+    }
+  } else {
+    Times = std::vector<Time>(GroupSize, Avg);
+  }
 
   PropertiesMap SetupOverride;
 

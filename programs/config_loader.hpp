@@ -24,7 +24,9 @@ struct ConfigRet {
   Config C;
 };
 
-ConfigRet loadConfig(const std::string &Filename);
+ConfigRet loadConfig(std::string const &Filename);
+
+ErrCodeTy loadPsychsheet(std::string const &Filename, std::vector<Time> &Times);
 
 }
 

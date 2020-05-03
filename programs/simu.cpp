@@ -2,6 +2,7 @@
 #include <llvm/Support/YAMLTraits.h>
 #include "llvm/Support/CommandLine.h"
 #include <iostream>
+#include <fstream>
 #include <cassert>
 #include <iterator>
 
@@ -59,7 +60,16 @@ int main(int argc, char **argv) {
 #include "setup_props.def"
 #undef PROP
 
-  std::vector<Time> Times(GroupSize, Avg);
+  std::vector<Time> Times;
+
+  if (Psychsheet.size()) {
+    auto Err = programs::loadPsychsheet(Psychsheet, Times);
+    if (Err != errors::SUCCESS) {
+      return Err;
+    }
+  } else {
+    Times = std::vector<Time>(GroupSize, Avg);
+  }
 
   TimeResult Result = simuGroup(EventId, Times, Override, ModelId);
   if (Result.Err) {
