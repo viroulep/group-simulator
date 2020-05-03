@@ -1,16 +1,20 @@
-#include "libsimu.hpp"
 
 #include <llvm/ObjectYAML/ObjectYAML.h>
+
+#include "libsimu.hpp"
 
 namespace libsimu::programs {
 
 struct ModelConfig : libsimu::PropertiesMap {
+  ModelConfig() : libsimu::PropertiesMap(getModelProps()) {};
 };
 
 struct SetupConfig : libsimu::PropertiesMap {
+  SetupConfig() : libsimu::PropertiesMap(getSetupProps()) {};
 };
 
 struct ScramblingConfig : libsimu::PropertiesMap {
+  ScramblingConfig() : libsimu::PropertiesMap(getScramblingProps()) {};
 };
 
 struct Config {
@@ -65,7 +69,7 @@ struct llvm::yaml::MappingTraits<libsimu::programs::ScramblingConfig> {
 template <>
 struct llvm::yaml::MappingTraits<libsimu::programs::Config> {
   static void mapping(IO &io, libsimu::programs::Config &C) {
-    io.mapRequired("setup", C.Setup);
+    io.mapOptional("setup", C.Setup);
     io.mapOptional("model", C.Model);
     io.mapOptional("scrambling", C.Scrambling);
   }
